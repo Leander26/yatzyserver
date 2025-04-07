@@ -1,0 +1,55 @@
+<svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
+
+ <g>
+  <title>Layer 1</title>
+  <rect x="-55" y="-55" stroke-width="0" id="svg_32" height="410" width="410" stroke="#000" fill="#a6022f"/>
+  <g id="svg_87">
+   <rect stroke-width="0" id="svg_33" height="90" width="90" stroke="#000" fill="#e6175e"/>
+   <rect stroke-width="0" id="svg_43" height="80" width="80" y="5" x="5" stroke="#000" fill="#ff216f"/>
+   <rect id="svg_58" height="70" width="70" y="10" x="10" stroke-width="0" stroke="#000" fill="#f2e20c"/>
+   <rect id="svg_71" height="20" width="20" y="10" x="10" stroke-width="0" stroke="#000" fill="#ffffff"/>
+  </g>
+  <g id="svg_92">
+   <rect y="0" stroke-width="0" id="svg_88" height="90" width="90" x="105" stroke="#000" fill="#e6175e"/>
+   <rect stroke-width="0" id="svg_89" height="80" width="80" y="5" x="110" stroke="#000" fill="#ff216f"/>
+   <rect id="svg_90" height="70" width="70" y="10" x="115" stroke-width="0" stroke="#000" fill="#f2e20c"/>
+   <rect id="svg_91" height="20" width="20" y="10" x="115" stroke-width="0" stroke="#000" fill="#ffffff"/>
+  </g>
+  <g id="svg_102">
+   <rect x="0" y="105" stroke-width="0" id="svg_98" height="90" width="90" stroke="#000" fill="#e6175e"/>
+   <rect stroke-width="0" id="svg_99" height="80" width="80" y="110" x="5" stroke="#000" fill="#ff216f"/>
+   <rect id="svg_100" height="70" width="70" y="115" x="10" stroke-width="0" stroke="#000" fill="#f2e20c"/>
+   <rect id="svg_101" height="20" width="20" y="115" x="10" stroke-width="0" stroke="#000" fill="#ffffff"/>
+  </g>
+  <g id="svg_176">
+   <rect y="0" stroke-width="0" id="svg_172" height="90" width="90" x="210" stroke="#000" fill="#e6175e"/>
+   <rect stroke-width="0" id="svg_173" height="80" width="80" y="5" x="215" stroke="#000" fill="#ff216f"/>
+   <rect id="svg_174" height="70" width="70" y="10" x="220" stroke-width="0" stroke="#000" fill="#f2e20c"/>
+   <rect id="svg_175" height="20" width="20" y="10" x="220" stroke-width="0" stroke="#000" fill="#ffffff"/>
+  </g>
+  <g id="svg_181">
+   <rect y="105" stroke-width="0" id="svg_177" height="90" width="90" x="210" stroke="#000" fill="#e6175e"/>
+   <rect stroke-width="0" id="svg_178" height="80" width="80" y="110" x="215" stroke="#000" fill="#ff216f"/>
+   <rect id="svg_179" height="70" width="70" y="115" x="220" stroke-width="0" stroke="#000" fill="#f2e20c"/>
+   <rect id="svg_180" height="20" width="20" y="115" x="220" stroke-width="0" stroke="#000" fill="#ffffff"/>
+  </g>
+  <g id="svg_186">
+   <rect x="0" y="210" stroke-width="0" id="svg_182" height="90" width="90" stroke="#000" fill="#e6175e"/>
+   <rect stroke-width="0" id="svg_183" height="80" width="80" y="215" x="5" stroke="#000" fill="#ff216f"/>
+   <rect id="svg_184" height="70" width="70" y="220" x="10" stroke-width="0" stroke="#000" fill="#f2e20c"/>
+   <rect id="svg_185" height="20" width="20" y="220" x="10" stroke-width="0" stroke="#000" fill="#ffffff"/>
+  </g>
+  <g id="svg_191">
+   <rect y="210" stroke-width="0" id="svg_187" height="90" width="90" x="105" stroke="#000" fill="#e6175e"/>
+   <rect stroke-width="0" id="svg_188" height="80" width="80" y="215" x="110" stroke="#000" fill="#ff216f"/>
+   <rect id="svg_189" height="70" width="70" y="220" x="115" stroke-width="0" stroke="#000" fill="#f2e20c"/>
+   <rect id="svg_190" height="20" width="20" y="220" x="115" stroke-width="0" stroke="#000" fill="#ffffff"/>
+  </g>
+  <g id="svg_196">
+   <rect y="210" stroke-width="0" id="svg_192" height="90" width="90" x="210" stroke="#000" fill="#e6175e"/>
+   <rect stroke-width="0" id="svg_193" height="80" width="80" y="215" x="215" stroke="#000" fill="#ff216f"/>
+   <rect id="svg_194" height="70" width="70" y="220" x="220" stroke-width="0" stroke="#000" fill="#f2e20c"/>
+   <rect id="svg_195" height="20" width="20" y="220" x="220" stroke-width="0" stroke="#000" fill="#ffffff"/>
+  </g>
+ </g>
+</svg>

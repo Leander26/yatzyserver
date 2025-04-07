@@ -1,0 +1,26 @@
+{
+  "dependencies": {
+    "chai": "^5.2.0",
+    "mocha": "^11.1.0"
+  },
+  "name": "yatzyproject",
+  "version": "1.0.0",
+  "main": "gameLogic.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "mocha 'test/*test.js'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Leander26/YatzyProject.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Leander26/YatzyProject/issues"
+  },
+  "homepage": "https://github.com/Leander26/YatzyProject#readme",
+  "description": "",
+  "type": "module"
+
+}
