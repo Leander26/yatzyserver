@@ -104,16 +104,14 @@ function getNewScoreCard() {
 }
 
 // Dices and functions
-let dices = [];
 
 // Create 5 dices
 function getDices() {
-    if (dices.length === 0) {
-        for (let index = 0; index < 5; index++) {
-            let dice = new Dice();
-            dice.throw();
-            dices.push(dice);
-        }
+    let dices = [];
+    for (let index = 0; index < 5; index++) {
+        let dice = new Dice();
+        dice.throw();
+        dices.push(dice);
     }
     return dices;
 }
@@ -294,3 +292,131 @@ function yatzyPoints(dices) {
 
     return 0;
 }
+
+/** Moved from guiLogic */
+// Release dices
+function releaseDices(dices) {
+    dices.forEach(dice => {
+       dice.setOnHoldStatus(false);
+    });
+ }
+
+ // Update fields left on the scorecard
+function updateFieldsLeft(scoreCard) {
+    scoreCard.fieldsLeft = scoreCard.fieldsLeft - 1;
+ }
+ 
+ // Get fields left on the scorecard
+ function getFieldsLeft(scoreCard) {
+    return scoreCard.fieldsLeft;
+ }
+ 
+ // Throw dice
+ function guiThrowDice() {
+    let statusThrowCount = document.getElementById("statusThrowCount");
+    let rollButton = document.getElementById("btnRoll");
+    throwDices(dices);
+    calculateScoreCard(scoreCard, dices, fieldControl);
+    addValuesToFields();
+    throwCount = getThrowCount();
+    if (throwCount === 3) {
+       rollButton.disabled = true;
+       statusThrowCount.innerHTML = 'THROWS: ' + throwCount;
+       releaseDices(dices);
+    }
+    guiChangeDiceImg();
+ 
+    statusThrowCount.innerHTML = 'THROWS: ' + throwCount;
+ }
+
+ // Calulate fields on the scorecard. Values are only calculated if the field is not used.
+function calculateScoreCard(scoreCard, dices, fieldControl) {
+    for (const element of Object.keys(fieldControl)) {
+       let field = fieldControl[element];
+       if (field.status !== "used") {
+          switch (element) {
+             case 'onesPoints':
+                scoreCard.onesPoints = sameValuePoints(dices, 1);
+                break;
+             case 'twosPoints':
+                scoreCard.twosPoints = sameValuePoints(dices, 2);
+                break;
+             case 'threesPoints':
+                scoreCard.threesPoints = sameValuePoints(dices, 3);
+                break;
+             case 'foursPoints':
+                scoreCard.foursPoints = sameValuePoints(dices, 4);
+                break;
+             case 'fivesPoints':
+                scoreCard.fivesPoints = sameValuePoints(dices, 5);
+                break;
+             case 'sixesPoints':
+                scoreCard.sixesPoints = sameValuePoints(dices, 6);
+                break;
+             case 'onePairPoints':
+                scoreCard.onePairPoints = onePairPoints(dices);
+                break;
+             case 'twoPairPoints':
+                scoreCard.twoPairPoints = twoPairPoints(dices);
+                break;
+             case 'threeOfAKindPoints':
+                scoreCard.threeOfAKindPoints = threeOfAKindPoints(dices);
+                break;
+             case 'fourOfAKindPoints':
+                scoreCard.fourOfAKindPoints = fourOfAKindPoints(dices);
+                break;
+             case 'fullHousePoints':
+                scoreCard.fullHousePoints = fullHousePoints(dices);
+                break;
+             case 'smallStraightPoints':
+                scoreCard.smallStraightPoints = smallStraightPoints(dices);
+                break;
+             case 'largeStraightPoints':
+                scoreCard.largeStraightPoints = largeStraightPoints(dices);
+                break;
+             case 'chancePoints':
+                scoreCard.chancePoints = chancePoints(dices);
+                break;
+             case 'yatzyPoints':
+                scoreCard.yatzyPoints = yatzyPoints(dices);
+                break;
+          }
+       }
+ 
+    }
+ }
+
+ // Add values from scoreCard to the fields
+function addValuesToFields() {
+    let scorecardIDs = [
+       'onesPoints', 'twosPoints', 'threesPoints', 'foursPoints', 'fivesPoints', 'sixesPoints', 'sumPoints',
+       'bonusPoints', 'onePairPoints', 'twoPairPoints', 'threeOfAKindPoints',
+       'fourOfAKindPoints', 'fullHousePoints', 'smallStraightPoints',
+       'largeStraightPoints', 'chancePoints', 'yatzyPoints', 'totalPoints'
+    ];
+ 
+    for (let i = 0; i < scorecardIDs.length; i++) {
+       let scorecardID = scorecardIDs[i];
+       let field = document.getElementById(scorecardID);
+ 
+       switch (scorecardID) {
+          case 'sumPoints':
+             field.value = scoreCard.calculateTopScore();
+             field.setAttribute('style', `background-color: ${fieldControl[scorecardID].colorStyle}`);
+             break;
+          case 'bonusPoints':
+             field.value = scoreCard.calculateBonusScore();
+             field.setAttribute('style', `background-color: ${fieldControl[scorecardID].colorStyle}`);
+             break;
+          case 'totalPoints':
+             field.value = scoreCard.calculateTotalScore();
+             field.setAttribute('style', `background-color: ${fieldControl[scorecardID].colorStyle}`);
+             break;
+          default:
+             if (!field.disabled) {
+                field.value = scoreCard[scorecardID];
+                field.setAttribute('style', `background-color: ${fieldControl[scorecardID].colorStyle}`);
+             }
+       }
+    }
+ }
