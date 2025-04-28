@@ -2,7 +2,9 @@ import {
    getNewScoreCard, getDices, getThrowCount, resetThrowCount, throwDices, getDiceFrequency, sameValuePoints, onePairPoints, twoPairPoints, threeOfAKindPoints,
    fourOfAKindPoints, smallStraightPoints, largeStraightPoints, fullHousePoints, chancePoints, yatzyPoints
 } from "./gameLogic.js"
-
+import {
+   startNewGame, throwDie, holdDice, selectField
+} from "./yatzyProxy.js"
 
 // Get game objects
 let dices = getDices();
@@ -19,6 +21,13 @@ class fieldInfo {
 
 let fieldControl = {};
 
+/*
+ * Rework of entire file.
+ * Update function (players).
+*/ 
+
+
+
 // Draw dices
 function drawDicesDiv() {
    let diceDiv = document.querySelector('.dices');
@@ -33,8 +42,8 @@ function drawDicesDiv() {
       let images = document.querySelectorAll('img');
       images.forEach(img => {
          img.addEventListener('click', function () {
-            let urlPre = 'Media/dice-'
-            let urlPost = '-bubbleBobble.svg'
+            let urlPre = 'Media/dice-';
+            let urlPost = '-bubbleBobble.svg';
             let diceX = img.id.charAt(4);
             if (throwCount > 0) {
                if (!dices[diceX].getOnHoldStatus()) {
@@ -63,14 +72,15 @@ function startGame() {
       'LARGE STRAIGHT', 'CHANCE', 'YATZY', 'TOTAL'
    ];
 
-   let scorecardIDs = ['onesPoints', 'twosPoints', 'threesPoints', 'foursPoints', 'fivesPoints', 'sixesPoints', 'sumPoints',
+   let scorecardIDs = [
+      'onesPoints', 'twosPoints', 'threesPoints', 'foursPoints', 'fivesPoints', 'sixesPoints', 'sumPoints',
       'bonusPoints', 'onePairPoints', 'twoPairPoints', 'threeOfAKindPoints',
       'fourOfAKindPoints', 'fullHousePoints', 'smallStraightPoints',
       'largeStraightPoints', 'chancePoints', 'yatzyPoints', 'totalPoints'
    ];
 
-   let pointDiv = document.querySelector('.points')
-   let newElements = ""
+   let pointDiv = document.querySelector('.points');
+   let newElements = "";
    let playerName = scoreCard.playerName;
    newElements += '<h4>' + playerName.toUpperCase() + '</h4> <br>';
 
@@ -78,16 +88,16 @@ function startGame() {
       let fieldValue = fieldNames[i].toUpperCase();
       let scorecardID = scorecardIDs[i];
       let field = new fieldInfo();
-      fieldControl[scorecardID] = field
+      fieldControl[scorecardID] = field;
 
-      newElements += `<p>${fieldValue}</p>`
+      newElements += `<p>${fieldValue}</p>`;
       if (fieldValue === 'SUM' || fieldValue === 'BONUS' || fieldValue === 'TOTAL') {
-         newElements += `<input type='text' name='${fieldValue}' id='${scorecardID}' disabled value='0' />`
+         newElements += `<input type='text' name='${fieldValue}' id='${scorecardID}' disabled value='0' />`;
       } else {
-         newElements += `<input type='text' name='${fieldValue}' id='${scorecardID}' readonly value='0' />`
+         newElements += `<input type='text' name='${fieldValue}' id='${scorecardID}' readonly value='0' />`;
       }
    }
-   pointDiv.innerHTML = newElements
+   pointDiv.innerHTML = newElements;
 
    // Add button panel
    let btnPanel = document.querySelector('.btnPanel');
@@ -142,144 +152,20 @@ function startGame() {
    releaseDices(dices);
 }
 
-// Add values from scoreCard to the fields
-function addValuesToFields() {
-   let scorecardIDs = ['onesPoints', 'twosPoints', 'threesPoints', 'foursPoints', 'fivesPoints', 'sixesPoints', 'sumPoints',
-      'bonusPoints', 'onePairPoints', 'twoPairPoints', 'threeOfAKindPoints',
-      'fourOfAKindPoints', 'fullHousePoints', 'smallStraightPoints',
-      'largeStraightPoints', 'chancePoints', 'yatzyPoints', 'totalPoints'
-   ];
-
-   for (let i = 0; i < scorecardIDs.length; i++) {
-      let scorecardID = scorecardIDs[i];
-      let field = document.getElementById(scorecardID);
-
-      switch (scorecardID) {
-         case 'sumPoints':
-            field.value = scoreCard.calculateTopScore();
-            field.setAttribute('style', `background-color: ${fieldControl[scorecardID].colorStyle}`);
-            break;
-         case 'bonusPoints':
-            field.value = scoreCard.calculateBonusScore();
-            field.setAttribute('style', `background-color: ${fieldControl[scorecardID].colorStyle}`);
-            break;
-         case 'totalPoints':
-            field.value = scoreCard.calculateTotalScore();
-            field.setAttribute('style', `background-color: ${fieldControl[scorecardID].colorStyle}`);
-            break;
-         default:
-            if (!field.disabled) {
-               field.value = scoreCard[scorecardID];
-               field.setAttribute('style', `background-color: ${fieldControl[scorecardID].colorStyle}`);
-            }
-      }
-   }
-}
-
-// Calulate fields on the scorecard. Values are only calculated if the field is not used.
-function calculateScoreCard(scoreCard, dices, fieldControl) {
-   for (const element of Object.keys(fieldControl)) {
-      let field = fieldControl[element];
-      if (field.status !== "used") {
-         switch (element) {
-            case 'onesPoints':
-               scoreCard.onesPoints = sameValuePoints(dices, 1);
-               break;
-            case 'twosPoints':
-               scoreCard.twosPoints = sameValuePoints(dices, 2);
-               break;
-            case 'threesPoints':
-               scoreCard.threesPoints = sameValuePoints(dices, 3);
-               break;
-            case 'foursPoints':
-               scoreCard.foursPoints = sameValuePoints(dices, 4);
-               break;
-            case 'fivesPoints':
-               scoreCard.fivesPoints = sameValuePoints(dices, 5);
-               break;
-            case 'sixesPoints':
-               scoreCard.sixesPoints = sameValuePoints(dices, 6);
-               break;
-            case 'onePairPoints':
-               scoreCard.onePairPoints = onePairPoints(dices);
-               break;
-            case 'twoPairPoints':
-               scoreCard.twoPairPoints = twoPairPoints(dices);
-               break;
-            case 'threeOfAKindPoints':
-               scoreCard.threeOfAKindPoints = threeOfAKindPoints(dices);
-               break;
-            case 'fourOfAKindPoints':
-               scoreCard.fourOfAKindPoints = fourOfAKindPoints(dices);
-               break;
-            case 'fullHousePoints':
-               scoreCard.fullHousePoints = fullHousePoints(dices);
-               break;
-            case 'smallStraightPoints':
-               scoreCard.smallStraightPoints = smallStraightPoints(dices);
-               break;
-            case 'largeStraightPoints':
-               scoreCard.largeStraightPoints = largeStraightPoints(dices);
-               break;
-            case 'chancePoints':
-               scoreCard.chancePoints = chancePoints(dices);
-               break;
-            case 'yatzyPoints':
-               scoreCard.yatzyPoints = yatzyPoints(dices);
-               break;
-         }
-      }
-
-   }
-}
-
-// Update fields left on the scorecard
-function updateFieldsLeft(scoreCard) {
-   scoreCard.fieldsLeft = scoreCard.fieldsLeft - 1;
-}
-
-// Get fields left on the scorecard
-function getFieldsLeft(scoreCard) {
-   return scoreCard.fieldsLeft;
-}
-
-// Throw dice
-function guiThrowDice() {
-   let statusThrowCount = document.getElementById("statusThrowCount");
-   let rollButton = document.getElementById("btnRoll");
-   throwDices(dices);
-   calculateScoreCard(scoreCard, dices, fieldControl);
-   addValuesToFields();
-   throwCount = getThrowCount();
-   if (throwCount === 3) {
-      rollButton.disabled = true;
-      statusThrowCount.innerHTML = 'THROWS: ' + throwCount;
-      releaseDices(dices);
-   }
-   guiChangeDiceImg();
-
-   statusThrowCount.innerHTML = 'THROWS: ' + throwCount;
-}
-
 // Change dice images
 function guiChangeDiceImg() {
-   let diceImages = document.querySelectorAll('img')
+   let diceImages = document.querySelectorAll('img');
 
    for (let i = 0; i < diceImages.length; i++) {
-      let urlPre = 'Media/dice-'
-      let urlPost = '-bubbleBobble.svg'
+      let urlPre = 'Media/dice-';
+      let urlPost = '-bubbleBobble.svg';
       if (!dices[i].getOnHoldStatus()) {
          diceImages[i].src = `${urlPre}${dices[i].value}${urlPost}`;
       }
    }
 }
 
-// Release dices
-function releaseDices(dices) {
-   dices.forEach(dice => {
-      dice.setOnHoldStatus(false);
-   });
-}
+
 
 // Draw HTMTL and calculate scorecard the first time.
 startGame();
