@@ -1,5 +1,6 @@
 export { getNewScoreCard, getDices, getThrowCount, resetThrowCount ,throwDices,getDiceFrequency, sameValuePoints, onePairPoints, 
-    twoPairPoints, threeOfAKindPoints, fourOfAKindPoints, fullHousePoints, smallStraightPoints, largeStraightPoints, chancePoints, yatzyPoints };
+    twoPairPoints, threeOfAKindPoints, fourOfAKindPoints, fullHousePoints, smallStraightPoints, largeStraightPoints, chancePoints, yatzyPoints,
+getNewFieldStatus };
 
 // Dice class
 class Dice {
@@ -330,61 +331,59 @@ function updateFieldsLeft(scoreCard) {
  }
 
  // Calulate fields on the scorecard. Values are only calculated if the field is not used.
-function calculateScoreCard(scoreCard, dices, fieldControl) {
-    for (const element of Object.keys(fieldControl)) {
-       let field = fieldControl[element];
-       if (field.status !== "used") {
-          switch (element) {
-             case 'onesPoints':
-                scoreCard.onesPoints = sameValuePoints(dices, 1);
-                break;
-             case 'twosPoints':
-                scoreCard.twosPoints = sameValuePoints(dices, 2);
-                break;
-             case 'threesPoints':
-                scoreCard.threesPoints = sameValuePoints(dices, 3);
-                break;
-             case 'foursPoints':
-                scoreCard.foursPoints = sameValuePoints(dices, 4);
-                break;
-             case 'fivesPoints':
-                scoreCard.fivesPoints = sameValuePoints(dices, 5);
-                break;
-             case 'sixesPoints':
-                scoreCard.sixesPoints = sameValuePoints(dices, 6);
-                break;
-             case 'onePairPoints':
-                scoreCard.onePairPoints = onePairPoints(dices);
-                break;
-             case 'twoPairPoints':
-                scoreCard.twoPairPoints = twoPairPoints(dices);
-                break;
-             case 'threeOfAKindPoints':
-                scoreCard.threeOfAKindPoints = threeOfAKindPoints(dices);
-                break;
-             case 'fourOfAKindPoints':
-                scoreCard.fourOfAKindPoints = fourOfAKindPoints(dices);
-                break;
-             case 'fullHousePoints':
-                scoreCard.fullHousePoints = fullHousePoints(dices);
-                break;
-             case 'smallStraightPoints':
-                scoreCard.smallStraightPoints = smallStraightPoints(dices);
-                break;
-             case 'largeStraightPoints':
-                scoreCard.largeStraightPoints = largeStraightPoints(dices);
-                break;
-             case 'chancePoints':
-                scoreCard.chancePoints = chancePoints(dices);
-                break;
-             case 'yatzyPoints':
-                scoreCard.yatzyPoints = yatzyPoints(dices);
-                break;
-          }
-       }
- 
+ function calculateScoreCard(scoreCard, dices, fieldStatus) {
+    for (const field in fieldStatus) {
+        if (fieldStatus[field] === "open") {
+            switch (field) {
+                case 'onesPoints':
+                    scoreCard.onesPoints = sameValuePoints(dices, 1);
+                    break;
+                case 'twosPoints':
+                    scoreCard.twosPoints = sameValuePoints(dices, 2);
+                    break;
+                case 'threesPoints':
+                    scoreCard.threesPoints = sameValuePoints(dices, 3);
+                    break;
+                case 'foursPoints':
+                    scoreCard.foursPoints = sameValuePoints(dices, 4);
+                    break;
+                case 'fivesPoints':
+                    scoreCard.fivesPoints = sameValuePoints(dices, 5);
+                    break;
+                case 'sixesPoints':
+                    scoreCard.sixesPoints = sameValuePoints(dices, 6);
+                    break;
+                case 'onePairPoints':
+                    scoreCard.onePairPoints = onePairPoints(dices);
+                    break;
+                case 'twoPairPoints':
+                    scoreCard.twoPairPoints = twoPairPoints(dices);
+                    break;
+                case 'threeOfAKindPoints':
+                    scoreCard.threeOfAKindPoints = threeOfAKindPoints(dices);
+                    break;
+                case 'fourOfAKindPoints':
+                    scoreCard.fourOfAKindPoints = fourOfAKindPoints(dices);
+                    break;
+                case 'fullHousePoints':
+                    scoreCard.fullHousePoints = fullHousePoints(dices);
+                    break;
+                case 'smallStraightPoints':
+                    scoreCard.smallStraightPoints = smallStraightPoints(dices);
+                    break;
+                case 'largeStraightPoints':
+                    scoreCard.largeStraightPoints = largeStraightPoints(dices);
+                    break;
+                case 'chancePoints':
+                    scoreCard.chancePoints = chancePoints(dices);
+                    break;
+                case 'yatzyPoints':
+                    scoreCard.yatzyPoints = yatzyPoints(dices);
+                    break;
+            }
+        }
     }
- }
+}
 
  // Add values from scoreCard to the fields
 function addValuesToFields() {
@@ -420,3 +419,23 @@ function addValuesToFields() {
        }
     }
  }
+
+function getNewFieldStatus() {
+    return {
+        onesPoints: "open",
+        twosPoints: "open",
+        threesPoints: "open",
+        foursPoints: "open",
+        fivesPoints: "open",
+        sixesPoints: "open",
+        onePairPoints: "open",
+        twoPairPoints: "open",
+        threeOfAKindPoints: "open",
+        fourOfAKindPoints: "open",
+        fullHousePoints: "open",
+        smallStraightPoints: "open",
+        largeStraightPoints: "open",
+        chancePoints: "open",
+        yatzyPoints: "open"
+    };
+}
