@@ -5,11 +5,7 @@ import { renderFile } from 'pug';
 import { join } from 'path';
 import express, { response, json } from 'express';
 import sessions from 'express-session';
-<<<<<<< HEAD
-import { getDices, getNewScoreCard } from './gameLogic.js'
-=======
-import {getDices, getNewScoreCard, getNewFieldStatus} from './gameLogic.js'
->>>>>>> main
+import { getDices, getNewScoreCard, getNewFieldStatus } from './gameLogic.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -24,18 +20,11 @@ app.set('public', join(__dirname, '/public'));
 app.use(express.static(join(__dirname, 'public')));
 
 class player {
-<<<<<<< HEAD
-    constructor(user, dices, scorecard) {
-        this.user = user;
-        this.dices = dices;
-        this.scorecard = scorecard;
-=======
-    constructor(user){
+    constructor(user) {
         this.user = user;
         this.dices = getDices();
         this.scorecard = getNewScoreCard();
         this.fieldStatus = getNewFieldStatus();
->>>>>>> main
     }
 }
 
@@ -43,7 +32,6 @@ let players = [];
 
 // Checks whether user has been seen before
 app.get('/welcome/', async (req, res) => {
-<<<<<<< HEAD
     // Check if user is already in session
     let user = req.session.user;
     if (user == undefined) {
@@ -68,29 +56,18 @@ app.get('/welcome/', async (req, res) => {
 
     }
     res.render('welcome', { user })
-=======
-    //new
->>>>>>> main
 });
 
 /*
  * If no game is being played, a new game is started.
  * All players is returned
  */
-<<<<<<< HEAD
 app.get('/yatzy/', (req, res) => {
-    // Redirect to welcome page
-    if (req.session.user == undefined) {
-        res.redirect('/welcome/');
-        // return players[]
-=======
-app.get('/yatzy/',(req, res) => {
     let user = req.session.user;
-    if (user == undefined){
+    if (user == undefined) {
         res.redirect('/welcome/')
-    }else{
+    } else {
         return players.json();
->>>>>>> main
     }
 });
 
@@ -125,7 +102,7 @@ app.post('/throwdice/', (req, res) => {
 
 app.post('/holddice/', (req, res) => {
     let user = req.session.user;
-    if (user == undefined){
+    if (user == undefined) {
         res.redirect('/welcome/');
     } else {
         let player = players.find(p => p.user.id === req.sessionID);
@@ -149,11 +126,6 @@ app.post('/holddice/', (req, res) => {
     }
 });
 
-<<<<<<< HEAD
-app.post('/selectfield/', (req, res) => {
-    // field 
-    // return players[] 
-=======
 /*
     Request must be a known field in the fieldstatus object.
  */
@@ -188,7 +160,6 @@ app.post('/selectfield/', (req, res) => {
     player.dices.forEach(dice => dice.setOnHoldStatus(false));
 
     res.json(players);
->>>>>>> main
 });
 
 app.listen(8000, () => console.log('Test running'));
