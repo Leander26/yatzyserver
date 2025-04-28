@@ -21,7 +21,7 @@ app.use(express.static(join(__dirname, 'public')));
 
 class player {
     constructor(user, dices, scorecard) {
-        this.user = user
+        this.user = user;
         this.dices = dices;
         this.scorecard = scorecard;
     }
@@ -31,16 +31,28 @@ let players = [];
 
 // Checks whether user has been seen before
 app.get('/welcome/', async (req, res) => {
+    // Check if user is already in session
     let user = req.session.user;
     if (user == undefined) {
-        user = {
-            username: "",
+        // If user is not in session, create a new user
+        let username = req.query.username;
+        req.session.user = {
+            username: username,
             id: req.sessionID
         }
+        user = req.session.user;
+
+        // Create a new player object and add it to the players array
         let dices = getDices();
         let scorecard = getNewScoreCard();
         let p = new player(user, dices, scorecard);
         players.push(p);
+    } else {
+        // If user is already in session, get the user from the session
+        user = req.session.user;
+        // Check if user is already in players array
+        let found = false;
+
     }
     res.render('welcome', { user })
 });
@@ -50,13 +62,11 @@ app.get('/welcome/', async (req, res) => {
  * All players is returned
  */
 app.get('/yatzy/', (req, res) => {
-    let user = req.session.user;
-    if (user == undefined) {
-        // Redirect to welcome page
+    // Redirect to welcome page
+    if (req.session.user == undefined) {
         res.redirect('/welcome/');
+        // return players[]
     }
-
-    // return players[]
 });
 
 /*

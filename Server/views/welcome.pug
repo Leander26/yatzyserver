@@ -2,6 +2,15 @@ head
     title 
         |Yatzy 4.0
     link(rel="stylesheet", href="/yatzy.css")
+    script.
+        function submitName() {
+            const name = document.querySelector('input[name="name"]').value;
+            if (name) {
+                window.location.href = `/welcome/?username=${encodeURIComponent(name)}`;
+            } else {
+                alert("Please enter your name.");
+            }
+        }
 div 
     h1 
         |Welcome | Let's Play Yatzy! 
@@ -9,4 +18,7 @@ div
 div 
     h2
         |Let us know who you are.
-    input(type="text")
+    input(type="text", placeholder="Enter your name" name="name" required)
+    button(type="submit", onclick="submitName()") 
+        |Submit
+div
