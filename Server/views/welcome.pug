@@ -1,7 +1,24 @@
 head 
     title 
         |Yatzy 4.0
-    link(rel="stylesheet", href="/yatzy.css")
+    link(rel="stylesheet", href="/client/yatzy.css")
+    script.
+script.
+  async function submitName() {
+    const name = document.querySelector('input[name="name"]').value;
+    if (!name) {
+        alert("Please enter your name.");
+        return;
+    }
+
+    // Send brugernavn til serveren via /auth
+    const response = await fetch(`/auth?username=${encodeURIComponent(name)}`);
+    if (response.ok) {
+        window.location.href = "/client/yatzy.html";
+    } else {
+        alert("Something went wrong. Try again.");
+    }
+  }
 div 
     h1 
         |Welcome | Let's Play Yatzy! 
@@ -9,4 +26,7 @@ div
 div 
     h2
         |Let us know who you are.
-    input(type="text")
+    input(type="text", placeholder="Enter your name" name="name" required)
+    button(type="submit", onclick="submitName()") 
+        |Submit
+div

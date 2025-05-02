@@ -112,3 +112,14 @@ div {
 .btnPanel {
    grid-template-columns: auto auto;
 }
+
+.divider{
+   border: 1px solid #ccc;
+   margin: 20px 0;
+}
+
+h1 {
+   color: white;
+   font-size: 4em; /* eller større hvis ønsket */
+   text-align: center;
+}
