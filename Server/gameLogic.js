@@ -1,6 +1,6 @@
 export { getNewScoreCard, getDices, getThrowCount, resetThrowCount ,throwDices,getDiceFrequency, sameValuePoints, onePairPoints, 
     twoPairPoints, threeOfAKindPoints, fourOfAKindPoints, fullHousePoints, smallStraightPoints, largeStraightPoints, chancePoints, yatzyPoints,
-getNewFieldStatus };
+getNewFieldStatus, calculateScoreCard };
 
 // Dice class
 class Dice {
