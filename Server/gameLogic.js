@@ -295,6 +295,7 @@ function yatzyPoints(dices) {
 }
 
 /** Moved from guiLogic */
+
 // Release dices
 function releaseDices(dices) {
     dices.forEach(dice => {
@@ -312,23 +313,7 @@ function updateFieldsLeft(scoreCard) {
     return scoreCard.fieldsLeft;
  }
  
- // Throw dice
- function guiThrowDice() {
-    let statusThrowCount = document.getElementById("statusThrowCount");
-    let rollButton = document.getElementById("btnRoll");
-    throwDices(dices);
-    calculateScoreCard(scoreCard, dices, fieldControl);
-    addValuesToFields();
-    throwCount = getThrowCount();
-    if (throwCount === 3) {
-       rollButton.disabled = true;
-       statusThrowCount.innerHTML = 'THROWS: ' + throwCount;
-       releaseDices(dices);
-    }
-    guiChangeDiceImg();
- 
-    statusThrowCount.innerHTML = 'THROWS: ' + throwCount;
- }
+
 
  // Calulate fields on the scorecard. Values are only calculated if the field is not used.
  function calculateScoreCard(scoreCard, dices, fieldStatus) {

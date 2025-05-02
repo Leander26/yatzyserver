@@ -25,56 +25,118 @@ class player {
         this.dices = getDices();
         this.scorecard = getNewScoreCard();
         this.fieldStatus = getNewFieldStatus();
+        this.throwCount = 0;
     }
 }
 
 let players = [];
 
-// Checks whether user has been seen before
+/**
+ * Sorts the players list so that the current player (by session ID) is first,
+ * followed by the remaining players sorted alphabetically by username.
+ *
+ * @param {string} sessionID - The session ID of the current player.
+ * @returns {Array} Sorted list of players with the current player first.
+ */
+function sortPlayers(sessionID) {
+    const self = players.find(p => p.user.id === sessionID);
+    const others = players
+        .filter(p => p.user.id !== sessionID)
+        .sort((a, b) => a.user.username.localeCompare(b.user.username));
+    return self ? [self, ...others] : others;
+}
+
+/**
+ * Sends the sorted list of players as a JSON response.
+ * Ensures that the current player is first in the list.
+ *
+ * @param {object} req - The Express request object.
+ * @param {object} res - The Express response object.
+ */
+function respondWithSortedPlayers(req, res) {
+    res.json(sortPlayers(req.sessionID));
+}
+
+/**
+ * Renders the welcome screen where the player can enter their name.
+ *
+ * @route GET /welcome/
+ */
 app.get('/welcome/', async (req, res) => {
-    // Check if user is already in session
-    let user = req.session.user;
-    if (user == undefined) {
-        // If user is not in session, create a new user
-        let username = req.query.username;
-        req.session.user = {
-            username: username,
-            id: req.sessionID
-        }
-        user = req.session.user;
-
-        // Create a new player object and add it to the players array
-        let dices = getDices();
-        let scorecard = getNewScoreCard();
-        let p = new player(user, dices, scorecard);
-        players.push(p);
-    } else {
-        // If user is already in session, get the user from the session
-        user = req.session.user;
-        // Check if user is already in players array
-        let found = false;
-
-    }
-    res.render('welcome', { user })
+    res.render('welcome')
 });
 
-/*
- * If no game is being played, a new game is started.
- * All players is returned
+/**
+ * Authenticates and registers a new player based on query parameter.
+ * Initializes a session and creates a player object if necessary.
+ *
+ * @route GET /auth
+ * @query {string} username - The player's chosen name.
+ * @returns {status} 200 OK if successful, 400 if missing username.
+ */
+app.get('/auth', (req, res) => {
+    const username = req.query.username;
+
+    if (!username) {
+        return res.status(400).json({ error: "Missing username" });
+    }
+
+    req.session.user = { username, id: req.sessionID };
+
+    if (!players.find(p => p.user.id === req.sessionID)) {
+        players.push(new player(req.session.user));
+    }
+
+    return res.sendStatus(200); // OK, session sat
+});
+
+
+/**
+ * Initializes a new player session if needed and returns the sorted player list.
+ *
+ * - If a session already exists, returns the player list.
+ * - If no session exists, but a username is provided as query parameter,
+ *   a new session and player object are created.
+ * - If neither a session nor username are provided, returns 401 Unauthorized.
+ *
+ * @route GET /yatzy/
+ * @query {string} [username] - Optional username to initialize a session.
+ * @returns {object[]} JSON array of players with the current player first.
  */
 app.get('/yatzy/', (req, res) => {
     let user = req.session.user;
-    if (user == undefined) {
-        res.redirect('/welcome/')
-    } else {
-        return players.json();
+
+    if (!user) {
+        const username = req.query.username;
+        if (username) {
+            req.session.user = {
+                username: username,
+                id: req.sessionID
+            };
+            user = req.session.user;
+
+            // Tjek om brugeren allerede findes
+            let existingPlayer = players.find(p => p.user.id === req.sessionID);
+            if (!existingPlayer) {
+                let dices = getDices();
+                let scorecard = getNewScoreCard();
+                let p = new player(user, dices, scorecard);
+                players.push(p);
+            }
+        } else {
+            return res.status(401).json({ error: "Unauthorized: No session or username." });
+        }
     }
+
+    respondWithSortedPlayers(req, res);
 });
 
-/*
- * 
- */
-
+/**
+ * Rolls all non-held dice for the current player and updates the scorecard.
+ *
+ * @route POST /throwdice/
+ * @returns {object[]} Updated list of players with recalculated scores.
+*/
 app.post('/throwdice/', (req, res) => {
     let user = req.session.user;
     if (user == undefined) {
@@ -88,18 +150,22 @@ app.post('/throwdice/', (req, res) => {
 
         // Kaster kun de terninger, der ikke er på hold
         throwDices(player.dices);
+        player.throwCount++;
 
         // Beregner mulige points på åbne felter
         calculateScoreCard(player.scorecard, player.dices, player.fieldStatus);
 
-        res.json(players);
+        respondWithSortedPlayers(req, res);
     }
 });
 
-/*
-    Request must be an array of holdstatusses, client must hold the correct order of holdstatuses.
-*/
-
+/**
+ * Updates the player's dice hold status based on the array received.
+ *
+ * @route POST /holddice/
+ * @body {boolean[]} holdDices - Array of 5 booleans indicating hold status.
+ * @returns {object[]} Updated list of players.
+ */
 app.post('/holddice/', (req, res) => {
     let user = req.session.user;
     if (user == undefined) {
@@ -122,12 +188,16 @@ app.post('/holddice/', (req, res) => {
             player.dices[i].setOnHoldStatus(holdDices[i]);
         }
 
-        res.json(players);
+        respondWithSortedPlayers(req, res);
     }
 });
 
-/*
-    Request must be a known field in the fieldstatus object.
+/**
+ * Locks the selected field in the player's fieldStatus and resets for next round.
+ *
+ * @route POST /selectfield/
+ * @body {string} selectedField - The field to be marked as used.
+ * @returns {object[]} Updated list of players.
  */
 app.post('/selectfield/', (req, res) => {
     let user = req.session.user;
@@ -158,8 +228,34 @@ app.post('/selectfield/', (req, res) => {
     // Nulstil terninger til næste runde
     player.dices = getDices();
     player.dices.forEach(dice => dice.setOnHoldStatus(false));
+    player.throwCount = 0;
 
-    res.json(players);
+    respondWithSortedPlayers(req, res);
 });
+
+/**
+ * Resets the player's throw count to 0.
+ *
+ * @route POST /resetthrowcount/
+ * @returns {object[]} Updated list of players.
+ */
+app.post('/resetthrowcount/', (req,res) => {
+    let user = req.session.user;
+    if (user == undefined) {
+        res.redirect('/welcome/');
+        return;
+    }
+
+    let player = players.find(p => p.user.id === req.sessionID);
+
+    if (!player) {
+        return res.status(404).json({ error: "Player not found." });
+    }
+
+    // Reset throwCount
+    player.throwCount = 0;
+
+    respondWithSortedPlayers(req, res);
+})
 
 app.listen(8000, () => console.log('Test running'));
