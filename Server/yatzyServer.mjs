@@ -5,7 +5,7 @@ import { renderFile } from 'pug';
 import { join } from 'path';
 import express, { response, json } from 'express';
 import sessions from 'express-session';
-import { getDices, getNewScoreCard, getNewFieldStatus } from './gameLogic.js'
+import { getDices, getNewScoreCard, getNewFieldStatus,throwDices,calculateScoreCard } from './gameLogic.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

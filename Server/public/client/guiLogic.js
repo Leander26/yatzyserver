@@ -101,24 +101,14 @@ function drawPlayerArea(player) {
    rollButton.addEventListener("click", guiThrowDice);
 
    // Add event listeners to fields
-   function addEventListeners() {
+   async function addEventListeners() {
       let fields = document.querySelectorAll('input');
       fields.forEach(field => {
          field.addEventListener('click', () => {
             if (throwCount > 0) {
                let rollButton = document.getElementById("btnRoll");
                field.disabled = true;
-               fieldControl[field.id].status = "used";
-               releaseDices(dices);
-               updateFieldsLeft(scoreCard);
-               // Stop rolling if all fields are used
-               if(getFieldsLeft(scoreCard) != 0){
-                  resetThrowCount();
-                  throwCount = getThrowCount();
-                  rollButton.disabled = false;
-               }else{
-                  rollButton.disabled = true;
-               }
+               selectField(field);
             }
          });
       });
@@ -130,7 +120,6 @@ function drawPlayerArea(player) {
    resetThrowCount();
    throwCount = player.throwCount;
    drawDicesDiv(throwCount);
-   releaseDices(dices);
 }
 
 // Change dice images
@@ -140,28 +129,22 @@ function guiChangeDiceImg() {
    for (let i = 0; i < diceImages.length; i++) {
       let urlPre = 'Media/dice-';
       let urlPost = '-bubbleBobble.svg';
-      if (!dices[i].getOnHoldStatus()) {
+      if (!dices[i].onHold) {
          diceImages[i].src = `${urlPre}${dices[i].value}${urlPost}`;
       }
    }
 }
 
  // Throw dice
- function guiThrowDice() {
-    let statusThrowCount = document.getElementById("statusThrowCount");
-    let rollButton = document.getElementById("btnRoll");
-    throwDices(dices);
-    calculateScoreCard(scoreCard, dices, fieldControl);
-    addValuesToFields();
-    throwCount = getThrowCount();
-    if (throwCount === 3) {
-       rollButton.disabled = true;
-       statusThrowCount.innerHTML = 'THROWS: ' + throwCount;
-       releaseDices(dices);
-    }
-    guiChangeDiceImg();
- 
-    statusThrowCount.innerHTML = 'THROWS: ' + throwCount;
+ async function guiThrowDice() {
+   let statusThrowCount = document.getElementById("statusThrowCount");
+   let rollButton = document.getElementById("btnRoll");
+   players = await throwDie();
+   dices = players[0].dices;
+   guiChangeDiceImg();
+   throwCount = players[0].throwCount;
+   drawPlayerArea(players[0]);          // Initierer resten af UI
+   statusThrowCount.innerHTML = 'THROWS: ' + players[0].throwCount;
  }
 
 

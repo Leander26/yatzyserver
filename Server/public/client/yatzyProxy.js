@@ -26,6 +26,7 @@ async function throwDie() {
         headers: { 'Content-Type': 'application/json' }
     });
     const players = await response.json();
+    console.log(players)
     return players;
 }
 
