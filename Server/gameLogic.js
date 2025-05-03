@@ -1,4 +1,4 @@
-export { getNewScoreCard, getDices, getThrowCount, resetThrowCount ,throwDices,getDiceFrequency, sameValuePoints, onePairPoints, 
+export { getNewScoreCard, getDices,throwDices,getDiceFrequency, sameValuePoints, onePairPoints, 
     twoPairPoints, threeOfAKindPoints, fourOfAKindPoints, fullHousePoints, smallStraightPoints, largeStraightPoints, chancePoints, yatzyPoints,
 getNewFieldStatus, calculateScoreCard };
 
@@ -34,7 +34,9 @@ class scoreCard {
         this.foursPoints = 0;
         this.fivesPoints = 0;
         this.sixesPoints = 0;
-
+        //SubTotal
+        this.sumPoints = 0;
+        this.bonusPoints = 0;
         // Buttom scores
         this.onePairPoints = 0;
         this.twoPairPoints = 0;
@@ -45,6 +47,8 @@ class scoreCard {
         this.fullHousePoints = 0;
         this.chancePoints = 0;
         this.yatzyPoints = 0;
+        // Total
+        this.totalPoints = 0;
     }
     
     // Calculate the score for the top section
@@ -117,26 +121,17 @@ function getDices() {
     return dices;
 }
 
-// Get throw count
-let throwCount = 0;
-
-function getThrowCount() {
-    return throwCount;
-}
-
-function resetThrowCount() {
-    throwCount = 0;
-}
-
 // Throws the dices
-function throwDices(dices) {
-    dices.forEach(dice => {
-        if (!dice.getOnHoldStatus()) {
-            dice.throw();
-        }
-    });
-
-    throwCount++;
+function throwDices(dices, player) {
+    if (player.throwCount < 3){
+        dices.forEach(dice => {
+            if (!dice.getOnHoldStatus()) {
+                dice.throw();
+            }
+        });
+    
+        player.throwCount++;
+    }
 }
 
 // Get freqyency of the dice values
@@ -338,6 +333,12 @@ function updateFieldsLeft(scoreCard) {
                 case 'sixesPoints':
                     scoreCard.sixesPoints = sameValuePoints(dices, 6);
                     break;
+                case 'sumPoints':
+                    scoreCard.sumPoints = scoreCard.calculateTopScore();
+                    break;
+                case 'bonusPoints':
+                    scoreCard.bonusPoints = scoreCard.calculateBonusScore();
+                    break;
                 case 'onePairPoints':
                     scoreCard.onePairPoints = onePairPoints(dices);
                     break;
@@ -365,45 +366,13 @@ function updateFieldsLeft(scoreCard) {
                 case 'yatzyPoints':
                     scoreCard.yatzyPoints = yatzyPoints(dices);
                     break;
+                case'totalPoints':
+                    scoreCard.totalPoints = scoreCard.calculateTotalScore();
+                    break;
             }
         }
     }
 }
-
- // Add values from scoreCard to the fields
-function addValuesToFields() {
-    let scorecardIDs = [
-       'onesPoints', 'twosPoints', 'threesPoints', 'foursPoints', 'fivesPoints', 'sixesPoints', 'sumPoints',
-       'bonusPoints', 'onePairPoints', 'twoPairPoints', 'threeOfAKindPoints',
-       'fourOfAKindPoints', 'fullHousePoints', 'smallStraightPoints',
-       'largeStraightPoints', 'chancePoints', 'yatzyPoints', 'totalPoints'
-    ];
- 
-    for (let i = 0; i < scorecardIDs.length; i++) {
-       let scorecardID = scorecardIDs[i];
-       let field = document.getElementById(scorecardID);
- 
-       switch (scorecardID) {
-          case 'sumPoints':
-             field.value = scoreCard.calculateTopScore();
-             field.setAttribute('style', `background-color: ${fieldControl[scorecardID].colorStyle}`);
-             break;
-          case 'bonusPoints':
-             field.value = scoreCard.calculateBonusScore();
-             field.setAttribute('style', `background-color: ${fieldControl[scorecardID].colorStyle}`);
-             break;
-          case 'totalPoints':
-             field.value = scoreCard.calculateTotalScore();
-             field.setAttribute('style', `background-color: ${fieldControl[scorecardID].colorStyle}`);
-             break;
-          default:
-             if (!field.disabled) {
-                field.value = scoreCard[scorecardID];
-                field.setAttribute('style', `background-color: ${fieldControl[scorecardID].colorStyle}`);
-             }
-       }
-    }
- }
 
 function getNewFieldStatus() {
     return {
@@ -413,6 +382,8 @@ function getNewFieldStatus() {
         foursPoints: "open",
         fivesPoints: "open",
         sixesPoints: "open",
+        sumPoints: "locked",
+        bonusPoints: "locked",
         onePairPoints: "open",
         twoPairPoints: "open",
         threeOfAKindPoints: "open",
@@ -421,6 +392,7 @@ function getNewFieldStatus() {
         smallStraightPoints: "open",
         largeStraightPoints: "open",
         chancePoints: "open",
-        yatzyPoints: "open"
+        yatzyPoints: "open",
+        totalPoints: "locked"
     };
 }
