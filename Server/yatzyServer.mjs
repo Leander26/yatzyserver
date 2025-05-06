@@ -19,7 +19,7 @@ app.set('views', join(__dirname, '/views'));
 app.set('public', join(__dirname, '/public'));
 app.use(express.static(join(__dirname, 'public')));
 
-class player {
+class Player {
     constructor(user) {
         this.user = user;
         this.dices = getDices();
@@ -67,12 +67,12 @@ app.get('/welcome/', async (req, res) => {
 });
 
 /**
- * Authenticates and registers a new player based on query parameter.
- * Initializes a session and creates a player object if necessary.
+ * Authenticates and registers a new player based on the provided username.
+ * Sets up session data and creates a new Player object if not already registered.
  *
  * @route GET /auth
  * @query {string} username - The player's chosen name.
- * @returns {status} 200 OK if successful, 400 if missing username.
+ * @returns {status} 200 OK if session and player are successfully set, 400 if username is missing.
  */
 app.get('/auth', (req, res) => {
     const username = req.query.username;
@@ -84,7 +84,9 @@ app.get('/auth', (req, res) => {
     req.session.user = { username, id: req.sessionID };
 
     if (!players.find(p => p.user.id === req.sessionID)) {
-        players.push(new player(req.session.user));
+        let p = new Player(req.session.user);
+        p.scorecard.playerName = p.user.username;
+        players.push(p);
     }
 
     return res.sendStatus(200); // OK, session sat
@@ -92,43 +94,22 @@ app.get('/auth', (req, res) => {
 
 
 /**
- * Initializes a new player session if needed and returns the sorted player list.
- *
- * - If a session already exists, returns the player list.
- * - If no session exists, but a username is provided as query parameter,
- *   a new session and player object are created.
- * - If neither a session nor username are provided, returns 401 Unauthorized.
+ * Returns the current list of players.
+ * Requires a valid session already initialized via /auth.
+ * Responds with players sorted so the current player appears first.
  *
  * @route GET /yatzy/
- * @query {string} [username] - Optional username to initialize a session.
- * @returns {object[]} JSON array of players with the current player first.
+ * @returns {object[]} JSON array of player objects.
+ * @returns {status} 401 Unauthorized if session is not initialized.
  */
 app.get('/yatzy/', (req, res) => {
     let user = req.session.user;
 
     if (!user) {
-        const username = req.query.username;
-        if (username) {
-            req.session.user = {
-                username: username,
-                id: req.sessionID
-            };
-            user = req.session.user;
-
-            // Tjek om brugeren allerede findes
-            let existingPlayer = players.find(p => p.user.id === req.sessionID);
-            if (!existingPlayer) {
-                let dices = getDices();
-                let scorecard = getNewScoreCard();
-                let p = new player(user, dices, scorecard);
-                players.push(p);
-            }
-        } else {
-            return res.status(401).json({ error: "Unauthorized: No session or username." });
-        }
+        return res.status(401).json({ error: "Unauthorized: No session or username." });
+    }else{
+        respondWithSortedPlayers(req, res);
     }
-
-    respondWithSortedPlayers(req, res);
 });
 
 /**
@@ -149,8 +130,7 @@ app.post('/throwdice/', (req, res) => {
         }
 
         // Kaster kun de terninger, der ikke er på hold
-        throwDices(player.dices);
-        player.throwCount++;
+        throwDices(player.dices, player);
 
         // Beregner mulige points på åbne felter
         calculateScoreCard(player.scorecard, player.dices, player.fieldStatus);

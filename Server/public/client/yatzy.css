@@ -100,13 +100,26 @@ div {
 }
 
 .points {
-   grid-template-columns: 175px auto;
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+   gap: 10px;
+   padding: 10px;
 
    /* Custom border */
    border: 30px solid;
    border-image-source: url(Media/borderSvg.svg);
    border-image-slice: 100;
    border-image-repeat: round;
+}
+
+.player {
+   display: grid;
+   grid-template-columns: auto auto;
+   gap: 4px;
+   padding: 5px;
+   background-color: rgba(255, 255, 255, 0.05);
+   border: 1px solid #555;
+   border-radius: 8px;
 }
 
 .btnPanel {
@@ -120,6 +133,6 @@ div {
 
 h1 {
    color: white;
-   font-size: 4em; /* eller større hvis ønsket */
+   font-size: 3em; /* eller større hvis ønsket */
    text-align: center;
 }
