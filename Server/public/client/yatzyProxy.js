@@ -1,4 +1,4 @@
-export {startNewGame,throwDie,holdDice,selectField, resetThrowCount}
+export {gameState as startNewGame,throwDie,holdDice,selectField, resetThrowCount}
 
 /**
  * Fetches the current list of players from the server.
@@ -6,7 +6,7 @@ export {startNewGame,throwDie,holdDice,selectField, resetThrowCount}
  *
  * @returns {Promise<object[]>} Resolves to an array of player objects.
  */
-async function startNewGame() {
+async function gameState() {
     const response = await fetch('/yatzy/');
     if (response.status === 401) {
         window.location.href = "/welcome/";
