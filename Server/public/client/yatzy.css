@@ -101,7 +101,7 @@ div {
 
 .points {
    display: grid;
-   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+   grid-template-columns: repeat(auto-fit, minmax(200px,300px));
    gap: 10px;
    padding: 10px;
 
@@ -121,6 +121,10 @@ div {
    border: 1px solid #555;
    border-radius: 8px;
 }
+ 
+ .player input {
+   justify-self: center; /* centrer input */
+ }
 
 .btnPanel {
    grid-template-columns: auto auto;

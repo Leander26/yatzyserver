@@ -54,13 +54,13 @@ function drawDicesDiv() {
                   img.src = `Media/dice-${dices[diceX].value}-bubbleBobble-locked.svg`;
                   dices[diceX].onHold = true;
                   players = await holdDice(getDicesHoldStatus());
-                  drawPlayerArea(players[0]);
+                  drawScoreCardArea(players[0]);
                } else {
                   let diceValue = dices[diceX].value;
                   img.src = `${urlPre}${diceValue}${urlPost}`;
                   dices[diceX].onHold = false;
                   players = await holdDice(getDicesHoldStatus());
-                  drawPlayerArea(players[0]);
+                  drawScoreCardArea(players[0]);
                }
             }
          });
@@ -71,7 +71,7 @@ function drawDicesDiv() {
 }
 
 // Draw html elements
-function drawPlayerArea() {
+function drawScoreCardArea() {
    const pointDiv = document.querySelector('.points');
    pointDiv.innerHTML = "";
 
@@ -101,7 +101,7 @@ function drawPlayerArea() {
          if (playerId === players[0].user.id && throwCount > 0) {
             players = await selectField(scorecardID);
             fieldStatuses = players[0].fieldStatus;
-            drawPlayerArea();
+            drawScoreCardArea();
          }
       });
    });
@@ -128,7 +128,7 @@ function guiChangeDiceImg() {
    dices = players[0].dices;
    guiChangeDiceImg();
    throwCount = players[0].throwCount;
-   drawPlayerArea(players[0]);
+   drawScoreCardArea(players[0]);
    statusThrowCount.innerHTML = 'THROWS: ' + players[0].throwCount;
  }
 
@@ -144,7 +144,7 @@ function guiChangeDiceImg() {
       let resetButton = document.getElementById("btnReset");
       resetButton.addEventListener("click", () => {
          //TODO -> Alter usage if drawPlayerArea() 
-         drawPlayerArea();
+         drawScoreCardArea();
          if (!musicPlaying) {
             var audio = document.getElementById("myAudio");
             audio.currentTime = 0;
@@ -164,7 +164,7 @@ async function start() {
    fieldStatuses = players[0].fieldStatus;
    drawDicesDiv()
    drawButtonArea();
-   drawPlayerArea()
+   drawScoreCardArea()
 }
 
 start();
