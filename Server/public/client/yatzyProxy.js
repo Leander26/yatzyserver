@@ -7,12 +7,22 @@ export {gameState as startNewGame,throwDie,holdDice,selectField, resetThrowCount
  * @returns {Promise<object[]>} Resolves to an array of player objects.
  */
 async function gameState() {
-    const response = await fetch('/yatzy/');
-    if (response.status === 401) {
+    try {
+        const response = await fetch('/yatzy/');
+        if (response.status === 401) {
+            window.location.href = "/welcome/";
+         }
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || "Unknown error getting gameState");
+        }
+            const players = await response.json();
+            return players;
+    }catch(err){
+        alert(err.message);
         window.location.href = "/welcome/";
-     }
-    const players = await response.json();
-    return players;
+    }
 }
 
 /**
@@ -21,13 +31,22 @@ async function gameState() {
  * @returns {Promise<object[]>} Resolves to an updated array of player objects.
  */
 async function throwDie() {
-    const response = await fetch('/throwdice/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-    });
-    const players = await response.json();
-    console.log(players)
-    return players;
+    try {
+        const response = await fetch('/throwdice/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+    
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || "Unknown error during throw");
+        }
+            const players = await response.json();
+            return players;
+    } catch (err) {
+        alert(err.message);
+        window.location.href = "/welcome/";
+    }
 }
 
 /**
@@ -37,13 +56,22 @@ async function throwDie() {
  * @returns {Promise<object[]>} Resolves to an updated array of player objects.
  */
 async function holdDice(holdDicesArray) {
-    const response = await fetch('/holddice/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ holdDices: holdDicesArray })
-    });
-    const players = await response.json();
-    return players;
+    try {
+        const response = await fetch('/holddice/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ holdDices: holdDicesArray })
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || "Unknown error during holde dice");
+        }
+        const players = await response.json();
+        return players;
+    }catch(err){
+        alert(err.message);
+        window.location.href = "/welcome/";
+    }
 }
 
 /**
@@ -53,13 +81,22 @@ async function holdDice(holdDicesArray) {
  * @returns {Promise<object[]>} Resolves to an updated array of player objects.
  */
 async function selectField(selectedField) {
-    const response = await fetch('/selectfield/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ selectedField })
-    });
-    const players = await response.json();
-    return players;
+    try{
+        const response = await fetch('/selectfield/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ selectedField })
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || "Unknown error during select field");
+        }
+        const players = await response.json();
+        return players;
+    }catch(err){
+        alert(err.message);
+        window.location.href = "/welcome/";
+    }
 }
 
 /**
@@ -68,10 +105,37 @@ async function selectField(selectedField) {
  * @returns {Promise<object[]>} Resolves to an updated array of player objects.
  */
 async function resetThrowCount() {
-    const response = await fetch('/resetthrowcount/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-    });
-    const players = await response.json();
-    return players;
+    try{
+        const response = await fetch('/resetthrowcount/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || "Unknown error during select reset throw count");
+        }
+        const players = await response.json();
+        return players;
+    }catch(err){
+        alert(err.message);
+        window.location.href = "/welcome/";
+    }
+}
+
+async function startNewGame() {
+    try{
+        const response = await fetch('/startnewgame/',{
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || "Unknown error during start new game");
+        }
+        const players = await response.json();
+        return players;
+    }catch(err){
+        alert(err.message);
+        window.location.href = "/welcome/";
+    }
 }
