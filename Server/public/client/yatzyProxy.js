@@ -1,4 +1,4 @@
-export { gameState as startNewGame, throwDie, holdDice, selectField, resetThrowCount }
+export { gameState, throwDie, holdDice, selectField, resetThrowCount, startNewGame, leaveGame };
 
 /**
  * Fetches the current list of players from the server.
@@ -150,8 +150,7 @@ async function leaveGame() {
             const error = await response.json();
             throw new Error(error.error || "Unknown error during leave game");
         }
-        const players = await response.json();
-        return players;
+        return;
     } catch (err) {
         alert(err.message);
         window.location.href = "/welcome/";

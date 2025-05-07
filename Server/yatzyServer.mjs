@@ -65,7 +65,7 @@ function respondWithSortedPlayers(req, res) {
 * @returns {HTML} The welcome page.
  */
 app.get('/welcome/', async (req, res) => {
-    res.render('welcome', {playerCount: players.length, maxPlayers : maxPlayers});
+    res.render('welcome', { playerCount: players.length, maxPlayers: maxPlayers });
 });
 
 /**

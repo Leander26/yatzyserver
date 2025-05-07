@@ -1,5 +1,5 @@
 import {
-    gameState, throwDie, holdDice, selectField, startNewGame
+    gameState, throwDie, holdDice, selectField, startNewGame, leaveGame
 } from "./yatzyProxy.js"
 
 // Get game objects
@@ -163,12 +163,12 @@ function drawButtonArea() {
     rollButton.addEventListener("click", guiThrowDice);
 
     let leaveButton = document.getElementById("btnLeaveGame");
-    leaveButton.addEventListener("click",);
+    leaveButton.addEventListener("click", leaveGame);
 }
 
-function leaveGame() {
-
-}
+//function leaveGame() {
+//    leaveGame();
+//}
 
 // Draw HTMTL and calculate scorecard the first time.
 async function start() {
