@@ -6,6 +6,7 @@ import {
 let players = [];
 let dices = null;
 let throwCount = null;
+let countDownValue = null;
 let musicPlaying = false;
 let fieldStatuses = [];
 let fieldNames = [
@@ -34,13 +35,16 @@ function getDicesHoldStatus() {
 
 // Draw dices
 function drawDicesDiv() {
-    let diceDiv = document.querySelector('.dices');
-    let diceHTML = "";
-    for (let i = 0; i < dices.length; i++) {
-        diceHTML += `<img src="Media/dice-5-bubbleBobble.svg" id="dice${i}" />`;
-    }
-    diceHTML += '<div> <p id="statusThrowCount"> THROWS: ' + throwCount + '</p6> </div>';
-    diceDiv.innerHTML = diceHTML;
+   let diceDiv = document.querySelector('.dices');
+   let diceHTML = "";
+   for (let i = 0; i < dices.length; i++) {
+      diceHTML += `<img src="Media/dice-5-bubbleBobble.svg" id="dice${i}" />`;
+   }
+   diceHTML += `<div>
+               <p id="statusThrowCount">THROWS: ${throwCount}</p>
+               <p id="lifeCycle">COUNT DOWN: ${countDownValue}</p>
+               </div>`;
+   diceDiv.innerHTML = diceHTML;
 
     function addEventListeners() {
         let images = document.querySelectorAll('img');
@@ -172,13 +176,28 @@ function drawButtonArea() {
 
 // Draw HTMTL and calculate scorecard the first time.
 async function start() {
-    players = await gameState();
-    dices = players[0].dices;
-    throwCount = players[0].throwCount;
-    fieldStatuses = players[0].fieldStatus;
-    drawDicesDiv()
-    drawButtonArea();
-    drawScoreCardArea()
+   players = await gameState();
+   dices = players[0].dices;
+   throwCount = players[0].throwCount;
+   fieldStatuses = players[0].fieldStatus;
+   drawDicesDiv()
+   let element = document.querySelector('#lifeCycle');
+   countDownValue = Math.floor(players[0].lifeCycle - (Date.now() - players[0].lastUpdated) / 1000);
+   element.innerHTML = `COUNT DOWN:  ${countDownValue} SECONDS`;
+   drawButtonArea();
+   drawScoreCardArea()
 }
 
+// Updates count down field.
+function countDown(){
+   let element = document.querySelector('#lifeCycle');
+   countDownValue = Math.floor(players[0].lifeCycle - (Date.now() - players[0].lastUpdated) / 1000);
+   element.innerHTML = `COUNT DOWN:  ${countDownValue} SECONDS`;
+   if (countDownValue < 0){
+      alert("Player session has expiered. Please login again!");
+      window.location.href = "/welcome/";
+   }
+}
+
+setInterval(() => countDown(),1000);
 start();
