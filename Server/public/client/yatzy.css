@@ -72,7 +72,6 @@ input:disabled {
    border: none;
 }
 
-
 .btnNewGame {
    height: 100px;
    background: url(Media/newGameSvg.svg) center no-repeat;
@@ -113,7 +112,7 @@ div {
    grid-template-columns: auto auto;
 }
 
-.divider{
+.divider {
    border: 1px solid #ccc;
    margin: 20px 0;
 }
