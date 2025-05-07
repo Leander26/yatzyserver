@@ -30,6 +30,7 @@ class Player {
 }
 
 let players = [];
+const maxPlayers = 6;
 
 /**
  * Sorts the players list so that the current player (by session ID) is first,
@@ -64,7 +65,7 @@ function respondWithSortedPlayers(req, res) {
 * @returns {HTML} The welcome page.
  */
 app.get('/welcome/', async (req, res) => {
-    res.render('welcome')
+    res.render('welcome', {playerCount: players.length, maxPlayers : maxPlayers});
 });
 
 /**
