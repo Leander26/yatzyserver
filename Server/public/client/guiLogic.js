@@ -1,5 +1,5 @@
 import {
-   startNewGame, throwDie, holdDice, selectField, resetThrowCount
+   startNewGame, throwDie, holdDice, selectField
 } from "./yatzyProxy.js"
 
 // Get game objects
@@ -7,8 +7,30 @@ let players = [];
 let dices = null;
 let throwCount = null;
 let musicPlaying = false;
+let fieldStatuses = [];
+let fieldNames = [
+   '1-S', '2-S', '3-S', '4-S', '5-S', '6-S', 'SUM',
+   'BONUS', 'ONE PAIR', 'TWO PAIRS', 'THREE SAME',
+   'FOUR SAME', 'FULL HOUSE', 'SMALL STRAIGHT',
+   'LARGE STRAIGHT', 'CHANCE', 'YATZY', 'TOTAL'
+];
+let scorecardIDs = [
+   'onesPoints', 'twosPoints', 'threesPoints', 'foursPoints', 'fivesPoints', 'sixesPoints', 'sumPoints',
+   'bonusPoints', 'onePairPoints', 'twoPairPoints', 'threeOfAKindPoints',
+   'fourOfAKindPoints', 'fullHousePoints', 'smallStraightPoints',
+   'largeStraightPoints', 'chancePoints', 'yatzyPoints', 'totalPoints'
+];
 
+// Helper method
+function getDicesHoldStatus(){
+   const array = [];
 
+   dices.forEach(d => {
+      array.push(d.onHold);
+   })
+
+   return array;
+}
 
 // Draw dices
 function drawDicesDiv() {
@@ -23,18 +45,22 @@ function drawDicesDiv() {
    function addEventListeners() {
       let images = document.querySelectorAll('img');
       images.forEach(img => {
-         img.addEventListener('click', function () {
+         img.addEventListener('click', async function () {
             let urlPre = 'Media/dice-';
             let urlPost = '-bubbleBobble.svg';
             let diceX = img.id.charAt(4);
             if (throwCount > 0) {
-               if (!dices[diceX].getOnHoldStatus()) {
+               if (!dices[diceX].onHold) {
                   img.src = `Media/dice-${dices[diceX].value}-bubbleBobble-locked.svg`;
-                  dices[diceX].setOnHoldStatus(true);
+                  dices[diceX].onHold = true;
+                  players = await holdDice(getDicesHoldStatus());
+                  drawScoreCardArea(players[0]);
                } else {
                   let diceValue = dices[diceX].value;
                   img.src = `${urlPre}${diceValue}${urlPost}`;
-                  dices[diceX].setOnHoldStatus(false);
+                  dices[diceX].onHold = false;
+                  players = await holdDice(getDicesHoldStatus());
+                  drawScoreCardArea(players[0]);
                }
             }
          });
@@ -45,81 +71,40 @@ function drawDicesDiv() {
 }
 
 // Draw html elements
-function drawPlayerArea(player) {
-   let scoreCard = player.scorecard;
-   let fieldStatus = player.fieldStatus;
-   let fieldNames = [
-      '1-S', '2-S', '3-S', '4-S', '5-S', '6-S', 'SUM',
-      'BONUS', 'ONE PAIR', 'TWO PAIRS', 'THREE SAME',
-      'FOUR SAME', 'FULL HOUSE', 'SMALL STRAIGHT',
-      'LARGE STRAIGHT', 'CHANCE', 'YATZY', 'TOTAL'
-   ];
+function drawScoreCardArea() {
+   const pointDiv = document.querySelector('.points');
+   pointDiv.innerHTML = "";
 
-   let scorecardIDs = [
-      'onesPoints', 'twosPoints', 'threesPoints', 'foursPoints', 'fivesPoints', 'sixesPoints', 'sumPoints',
-      'bonusPoints', 'onePairPoints', 'twoPairPoints', 'threeOfAKindPoints',
-      'fourOfAKindPoints', 'fullHousePoints', 'smallStraightPoints',
-      'largeStraightPoints', 'chancePoints', 'yatzyPoints', 'totalPoints'
-   ];
+   players.forEach(player => {
+      let html = `<div class="player">`;
+      html += `<h4>${player.user.username}</h4>`;
+      html += `<h4>Points</h4>`;
 
-   let pointDiv = document.querySelector('.points');
-   let newElements = "";
-   let playerName = player.user.username;
-   newElements += '<h4>' + playerName.toUpperCase() + '</h4> <br>';
+      for (let i = 0; i < fieldNames.length; i++) {
+         const fieldLabel = fieldNames[i];
+         const scorecardID = scorecardIDs[i];
+         const val = player.scorecard[scorecardID] ?? 0;
+         const used = player.fieldStatus[scorecardID] != "open";
+         const readOnlyAttr = used ? "disabled" : "readonly";
 
-   for (let i = 0; i < fieldNames.length; i++) {
-      let fieldValue = fieldNames[i].toUpperCase();
-      let scorecardID = scorecardIDs[i];
-
-      newElements += `<p>${fieldValue}</p>`;
-      if (fieldValue === 'SUM' || fieldValue === 'BONUS' || fieldValue === 'TOTAL') {
-         newElements += `<input type='text' name='${fieldValue}' id='${scorecardID}' disabled value='0' />`;
-      } else {
-         newElements += `<input type='text' name='${fieldValue}' id='${scorecardID}' readonly value='0' />`;
+         // html += `<div>${fieldLabel}</div>`;
+         html += `<p>${fieldLabel}</p><input type="text" id="${scorecardID}|${player.user.id}" value="${val}" ${readOnlyAttr}>`;
       }
-   }
-   pointDiv.innerHTML = newElements;
 
-   // Add button panel
-   let btnPanel = document.querySelector('.btnPanel');
-   newElements = '<button class="btnRoll" id="btnRoll"></button>';
-   newElements += '<button class="btnNewGame" id="btnReset"></button>';
-   btnPanel.innerHTML = newElements;
-
-   // Add event listeners to buttons
-   let resetButton = document.getElementById("btnReset");
-   resetButton.addEventListener("click", () => {
-      drawPlayerArea();
-      if (!musicPlaying) {
-         var audio = document.getElementById("myAudio");
-         audio.currentTime = 0;
-         audio.play().catch(error => console.log("Autoplay blokeret:", error));
-         musicPlaying = true;
-      }
+      html += `</div>`;
+      pointDiv.innerHTML += html;
    });
-   let rollButton = document.getElementById("btnRoll");
-   rollButton.addEventListener("click", guiThrowDice);
 
-   // Add event listeners to fields
-   async function addEventListeners() {
-      let fields = document.querySelectorAll('input');
-      fields.forEach(field => {
-         field.addEventListener('click', () => {
-            if (throwCount > 0) {
-               let rollButton = document.getElementById("btnRoll");
-               field.disabled = true;
-               selectField(field);
-            }
-         });
+   document.querySelectorAll('.player input').forEach(field => {
+      field.addEventListener('click', async function () {
+         const [scorecardID, playerId] = this.id.split("|");
+         if (playerId === players[0].user.id && throwCount > 0) {
+            players = await selectField(scorecardID);
+            fieldStatuses = players[0].fieldStatus;
+            drawScoreCardArea();
+         }
       });
-   }
-
-   // Call functions to prepare the game, some function calls are set to be prepare for a 'New game' (meaning that the game is reset).
-   addEventListeners();
-   // calculateScoreCard(scoreCard, dices, fieldControl);
-   resetThrowCount();
-   throwCount = player.throwCount;
-   drawDicesDiv(throwCount);
+   });
 }
 
 // Change dice images
@@ -143,17 +128,43 @@ function guiChangeDiceImg() {
    dices = players[0].dices;
    guiChangeDiceImg();
    throwCount = players[0].throwCount;
-   drawPlayerArea(players[0]);          // Initierer resten af UI
+   drawScoreCardArea(players[0]);
    statusThrowCount.innerHTML = 'THROWS: ' + players[0].throwCount;
  }
 
+ function drawButtonArea(){
+   let newElements = "";
+      // Add button panel
+      let btnPanel = document.querySelector('.btnPanel');
+      newElements = '<button class="btnRoll" id="btnRoll"></button>';
+      newElements += '<button class="btnNewGame" id="btnReset"></button>';
+      btnPanel.innerHTML = newElements;
+   
+      // Add event listeners to buttons
+      let resetButton = document.getElementById("btnReset");
+      resetButton.addEventListener("click", () => {
+         //TODO -> Alter usage if drawPlayerArea() 
+         drawScoreCardArea();
+         if (!musicPlaying) {
+            var audio = document.getElementById("myAudio");
+            audio.currentTime = 0;
+            audio.play().catch(error => console.log("Autoplay blokeret:", error));
+            musicPlaying = true;
+         }
+      });
+      let rollButton = document.getElementById("btnRoll");
+      rollButton.addEventListener("click", guiThrowDice);
+ }
 
 // Draw HTMTL and calculate scorecard the first time.
 async function start() {
    players = await startNewGame();
    dices = players[0].dices;
    throwCount = players[0].throwCount;
-   drawPlayerArea(players[0]);          // Initierer resten af UI
+   fieldStatuses = players[0].fieldStatus;
+   drawDicesDiv()
+   drawButtonArea();
+   drawScoreCardArea()
 }
 
 start();
