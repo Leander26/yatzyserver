@@ -61,6 +61,7 @@ function respondWithSortedPlayers(req, res) {
  * Renders the welcome screen where the player can enter their name.
  *
  * @route GET /welcome/
+* @returns {HTML} The welcome page.
  */
 app.get('/welcome/', async (req, res) => {
     res.render('welcome')
@@ -71,8 +72,8 @@ app.get('/welcome/', async (req, res) => {
  * Sets up session data and creates a new Player object if not already registered.
  *
  * @route GET /auth
- * @query {string} username - The player's chosen name.
- * @returns {status} 200 OK if session and player are successfully set, 400 if username is missing.
+ * @query {string} username - The player's chosen username.
+ * @returns {status} 200 OK if successful, 400 if username is missing.
  */
 app.get('/auth', (req, res) => {
     const username = req.query.username;
@@ -94,13 +95,11 @@ app.get('/auth', (req, res) => {
 
 
 /**
- * Returns the current list of players.
- * Requires a valid session already initialized via /auth.
- * Responds with players sorted so the current player appears first.
+ * Returns the sorted list of player objects for the current session.
  *
  * @route GET /yatzy/
- * @returns {object[]} JSON array of player objects.
- * @returns {status} 401 Unauthorized if session is not initialized.
+ * @returns {object[]} List of player objects.
+ * @returns {status} 401 if the session is missing or invalid.
  */
 app.get('/yatzy/', (req, res) => {
     let user = req.session.user;
@@ -113,15 +112,16 @@ app.get('/yatzy/', (req, res) => {
 });
 
 /**
- * Rolls all non-held dice for the current player and updates the scorecard.
+ * Rolls all non-held dice for the current player and updates their scorecard.
  *
  * @route POST /throwdice/
- * @returns {object[]} Updated list of players with recalculated scores.
-*/
+ * @returns {object[]} Updated list of player objects.
+ * @returns {status} 302 if session is missing, 404 if player is not found.
+ */
 app.post('/throwdice/', (req, res) => {
     let user = req.session.user;
     if (user == undefined) {
-        res.redirect('/welcome/');
+        return res.status(302).json({ error: "Cannot throw dice due to missing player session." })
     } else {
         let player = players.find(p => p.user.id === req.sessionID);
 
@@ -140,16 +140,17 @@ app.post('/throwdice/', (req, res) => {
 });
 
 /**
- * Updates the player's dice hold status based on the array received.
+ * Updates which dice are being held by the current player.
  *
  * @route POST /holddice/
- * @body {boolean[]} holdDices - Array of 5 booleans indicating hold status.
- * @returns {object[]} Updated list of players.
+ * @body {boolean[]} holdDices - An array of booleans representing dice hold status.
+ * @returns {object[]} Updated list of player objects.
+ * @returns {status} 302 if session is missing, 404 if player not found, 400 if data is invalid.
  */
 app.post('/holddice/', (req, res) => {
     let user = req.session.user;
     if (user == undefined) {
-        res.redirect('/welcome/');
+        return res.status(302).json({ error: "Cannot hold dice due to missing player session." })
     } else {
         let player = players.find(p => p.user.id === req.sessionID);
 
@@ -173,17 +174,17 @@ app.post('/holddice/', (req, res) => {
 });
 
 /**
- * Locks the selected field in the player's fieldStatus and resets for next round.
+ * Marks a selected score field as used and resets the player's state for the next round.
  *
  * @route POST /selectfield/
- * @body {string} selectedField - The field to be marked as used.
- * @returns {object[]} Updated list of players.
+ * @body {string} selectedField - The field name to be marked as used.
+ * @returns {object[]} Updated list of player objects.
+ * @returns {status} 302 if session is missing, 404 if player not found, 400 if field is invalid or already used.
  */
 app.post('/selectfield/', (req, res) => {
     let user = req.session.user;
     if (user == undefined) {
-        res.redirect('/welcome/');
-        return;
+        return res.status(302).json({ error: "Cannot select field due to missing player session." })
     }
 
     let player = players.find(p => p.user.id === req.sessionID);
@@ -214,16 +215,16 @@ app.post('/selectfield/', (req, res) => {
 });
 
 /**
- * Resets the player's throw count to 0.
+ * Resets the current player's throw count to zero.
  *
  * @route POST /resetthrowcount/
- * @returns {object[]} Updated list of players.
+ * @returns {object[]} Updated list of player objects.
+ * @returns {status} 302 if session is missing, 404 if player not found.
  */
 app.post('/resetthrowcount/', (req, res) => {
     let user = req.session.user;
     if (user == undefined) {
-        res.redirect('/welcome/');
-        return;
+        return res.status(302).json({ error: "Cannot reset throw count due to missing player session." })
     }
 
     let player = players.find(p => p.user.id === req.sessionID);
@@ -238,19 +239,40 @@ app.post('/resetthrowcount/', (req, res) => {
     respondWithSortedPlayers(req, res);
 })
 
-app.post('startnewgame', (req, res) => {
+/**
+ * Resets the current player's game state to start a new game.
+ * This includes resetting the throw count, scorecard, field status, and dice.
+ *
+ * @route POST /startnewgame/
+ * @returns {object[]} Updated list of player objects.
+ * @returns {status} 302 if session is missing, 404 if player not found.
+ */
+app.post('/startnewgame/', (req, res) => {
+    let user = req.session.user;
+    if (user == undefined) {
+        return res.status(302).json({ error: "Cannot reset throw count due to missing player session." })
+    }
+    // Reset player
+    player.throwCount = 0;
+    player.scorecard = getNewScoreCard();
+    player.fieldStatus = getNewFieldStatus();
+    player.dices = getDices();
 
+    respondWithSortedPlayers(req, res);
 })
 
 app.post('/leavegame/', (req, res) => {
+    // Check if user is logged in
     let user = req.session.user;
     if (user == undefined) {
+        // User is not logged in, redirect to welcome page
         res.redirect('/welcome/');
         return;
     }
 
     let player = players.find(p => p.user.id === req.sessionID);
 
+    // Check if player exists in the game
     if (!player) {
         return res.status(404).json({ error: "Player not found." });
     }
