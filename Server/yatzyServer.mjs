@@ -238,4 +238,8 @@ app.post('/resetthrowcount/', (req,res) => {
     respondWithSortedPlayers(req, res);
 })
 
+app.post('startnewgame', (req,res) => {
+    
+})
+
 app.listen(8000, () => console.log('Test running'));
