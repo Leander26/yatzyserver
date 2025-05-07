@@ -84,11 +84,17 @@ input:disabled {
    border: none;
 }
 
-
 .btnNewGame {
    height: 100px;
    background: url(Media/newGameSvg.svg) center no-repeat;
    background-size: 420px 100px;
+   border: none;
+}
+
+.btnLeaveGame {
+   height: 100px;
+   background: url(Media/leaveGameSvg.svg) center no-repeat;
+   background-size: 308px 100px;
    border: none;
 }
 
@@ -113,7 +119,7 @@ div {
 
 .points {
    display: grid;
-   grid-template-columns: repeat(auto-fit, minmax(200px,300px));
+   grid-template-columns: repeat(auto-fit, minmax(200px, 300px));
    gap: 10px;
    padding: 10px;
 
@@ -133,16 +139,16 @@ div {
    border: 1px solid #555;
    border-radius: 8px;
 }
- 
- .player input {
-   justify-self: center; /* centrer input */
- }
 
-.btnPanel {
-   grid-template-columns: auto auto;
+.player input {
+   justify-self: center; /* centrer input */
 }
 
-.divider{
+.btnPanel {
+   grid-template-columns: auto auto auto;
+}
+
+.divider {
    border: 1px solid #ccc;
    margin: 20px 0;
 }
