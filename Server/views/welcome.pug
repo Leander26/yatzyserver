@@ -19,14 +19,27 @@ script.
         alert("Something went wrong. Try again.");
     }
   }
-div 
-    h1 
-        |Welcome | Let's Play Yatzy! 
-    hr(class="divider")
-div 
-    h2
-        |Let us know who you are.
-    input(type="text", placeholder="Enter your name" name="name" required)
-    button(type="submit", onclick="submitName()") 
-        |Submit
-div
+
+if playerCount < maxPlayers
+    div 
+        h1 
+            |Welcome | Let's Play Yatzy! 
+        hr(class="divider")
+    div 
+        h2
+            |Let us know who you are.
+        input(type="text", placeholder="Enter your name" name="name" required)
+        button(type="submit", onclick="submitName()") 
+            |Submit
+    div 
+        h4 Currently connected: #{playerCount} of #{maxPlayers} players
+else
+    div 
+        h1 
+            |Welcome | Sorry the server is full! 
+        hr(class="divider")
+    div 
+        h2 
+            |Please try again later :-)
+    div 
+        h4 Currently connected: #{playerCount} of #{maxPlayers} players

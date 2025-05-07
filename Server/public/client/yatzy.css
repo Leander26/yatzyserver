@@ -36,6 +36,18 @@ p {
    border-bottom: 1px solid white;
 }
 
+h1 {
+   color: white;
+   font-size: 3em;
+   text-align: center;
+}
+
+h2 {
+   color: white;
+   font-size: 2em;
+   text-align: center;
+}
+
 h4 {
    color: white;
    text-align: center;
@@ -133,10 +145,4 @@ div {
 .divider{
    border: 1px solid #ccc;
    margin: 20px 0;
-}
-
-h1 {
-   color: white;
-   font-size: 3em; /* eller større hvis ønsket */
-   text-align: center;
 }
