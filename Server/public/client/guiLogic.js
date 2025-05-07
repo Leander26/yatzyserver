@@ -146,6 +146,7 @@ function guiChangeDiceImg() {
    drawDicesDiv();
  }
 
+ // Draw button div
  function drawButtonArea(){
    let newElements = "";
       // Add button panel

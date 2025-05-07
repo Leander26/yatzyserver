@@ -121,6 +121,12 @@ async function resetThrowCount() {
     }
 }
 
+/**
+ * Resets the game state for the current player.
+ * Clears the player's dice, throw count, scorecard, and field status.
+ *
+ * @returns {Promise<object[]>} Resolves to an updated array of player objects.
+ */
 async function startNewGame() {
     try{
         const response = await fetch('/startnewgame/',{
