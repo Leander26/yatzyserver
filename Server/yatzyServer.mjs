@@ -5,7 +5,7 @@ import { renderFile } from 'pug';
 import { join } from 'path';
 import express, { response, json } from 'express';
 import sessions from 'express-session';
-import { getDices, getNewScoreCard, getNewFieldStatus,throwDices,calculateScoreCard } from './gameLogic.js'
+import { getDices, getNewScoreCard, getNewFieldStatus, throwDices, calculateScoreCard } from './gameLogic.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -107,7 +107,7 @@ app.get('/yatzy/', (req, res) => {
 
     if (!user) {
         return res.status(401).json({ error: "Unauthorized: No session or username." });
-    }else{
+    } else {
         respondWithSortedPlayers(req, res);
     }
 });
@@ -219,7 +219,7 @@ app.post('/selectfield/', (req, res) => {
  * @route POST /resetthrowcount/
  * @returns {object[]} Updated list of players.
  */
-app.post('/resetthrowcount/', (req,res) => {
+app.post('/resetthrowcount/', (req, res) => {
     let user = req.session.user;
     if (user == undefined) {
         res.redirect('/welcome/');
@@ -238,8 +238,34 @@ app.post('/resetthrowcount/', (req,res) => {
     respondWithSortedPlayers(req, res);
 })
 
-app.post('startnewgame', (req,res) => {
-    
+app.post('startnewgame', (req, res) => {
+
+})
+
+app.post('/leavegame/', (req, res) => {
+    let user = req.session.user;
+    if (user == undefined) {
+        res.redirect('/welcome/');
+        return;
+    }
+
+    let player = players.find(p => p.user.id === req.sessionID);
+
+    if (!player) {
+        return res.status(404).json({ error: "Player not found." });
+    }
+
+    // Remove player from players array
+    players = players.slice(players.indexOf(player), 1);
+
+    // Remove session, to make sure the user is logged out
+    req.session.destroy(err => {
+        if (err) {
+            return res.status(500).json({ error: "Failed to destroy session." });
+        }
+    });
+
+    res.redirect('/welcome/'); // redirect user to welcome page
 })
 
 app.listen(8000, () => console.log('Test running'));
