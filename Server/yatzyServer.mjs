@@ -19,6 +19,9 @@ app.set('views', join(__dirname, '/views'));
 app.set('public', join(__dirname, '/public'));
 app.use(express.static(join(__dirname, 'public')));
 
+let players = [];
+const maxPlayers = 6;
+const lifeCycle = 30;
 class Player {
     constructor(user) {
         this.user = user;
@@ -26,11 +29,11 @@ class Player {
         this.scorecard = getNewScoreCard();
         this.fieldStatus = getNewFieldStatus();
         this.throwCount = 0;
+        this.lastUpdated = Date.now();
+        this.lifeCycle = lifeCycle;
     }
 }
 
-let players = [];
-const maxPlayers = 6;
 
 /**
  * Sorts the players list so that the current player (by session ID) is first,
@@ -108,6 +111,13 @@ app.get('/yatzy/', (req, res) => {
     if (!user) {
         return res.status(401).json({ error: "Unauthorized: No session or username." });
     }else{
+        let player = players.find(p => p.user.id === req.sessionID);
+
+        if (!player) {
+            return res.status(404).json({ error: "Player not found." });
+        }
+
+        player.lastUpdated = Date.now();
         respondWithSortedPlayers(req, res);
     }
 });
@@ -135,6 +145,7 @@ app.post('/throwdice/', (req, res) => {
 
         // Beregner mulige points på åbne felter
         calculateScoreCard(player.scorecard, player.dices, player.fieldStatus);
+        player.lastUpdated = Date.now();
 
         respondWithSortedPlayers(req, res);
     }
@@ -169,6 +180,7 @@ app.post('/holddice/', (req, res) => {
         for (let i = 0; i < player.dices.length; i++) {
             player.dices[i].setOnHoldStatus(holdDices[i]);
         }
+        player.lastUpdated = Date.now();
 
         respondWithSortedPlayers(req, res);
     }
@@ -211,6 +223,7 @@ app.post('/selectfield/', (req, res) => {
     player.dices = getDices();
     player.dices.forEach(dice => dice.setOnHoldStatus(false));
     player.throwCount = 0;
+    player.lastUpdated = Date.now();
 
     respondWithSortedPlayers(req, res);
 });
@@ -236,6 +249,7 @@ app.post('/resetthrowcount/', (req,res) => {
 
     // Reset throwCount
     player.throwCount = 0;
+    player.lastUpdated = Date.now();
 
     respondWithSortedPlayers(req, res);
 })
@@ -265,9 +279,27 @@ app.post('/startnewgame/', (req,res) => {
     player.scorecard = getNewScoreCard();
     player.fieldStatus = getNewFieldStatus();
     player.dices = getDices();
+    player.lastUpdated = Date.now();
 
     respondWithSortedPlayers(req, res);
 
 })
+
+/**
+ * Ensures that inactive players will release their session.
+ */
+function cleanUpPlayerList(){
+    const temp = [];
+    for (let index = 0; index < players.length; index++) {
+        const element = players[index];
+        if(Math.floor((Date.now() - element.lastUpdated) / 1000) < lifeCycle){
+            temp.push(element);
+        }
+    }
+
+    players = temp;
+}
+
+setInterval(() => cleanUpPlayerList(),1000);
 
 app.listen(8000, () => console.log('Test running'));
