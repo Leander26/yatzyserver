@@ -91,6 +91,13 @@ input:disabled {
    border: none;
 }
 
+.btnLeaveGame {
+   height: 100px;
+   background: url(Media/leaveGameSvg.svg) center no-repeat;
+   background-size: 308px 100px;
+   border: none;
+}
+
 div {
    padding: 10px;
    gap: 10px;
@@ -138,7 +145,7 @@ div {
 }
 
 .btnPanel {
-   grid-template-columns: auto auto;
+   grid-template-columns: auto auto auto;
 }
 
 .divider {

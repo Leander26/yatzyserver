@@ -150,8 +150,10 @@ async function leaveGame() {
             const error = await response.json();
             throw new Error(error.error || "Unknown error during leave game");
         }
-        return;
-    } catch (err) {
+        const players = await response.json();
+        return players;
+    }
+    catch (err) {
         alert(err.message);
         window.location.href = "/welcome/";
     }

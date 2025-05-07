@@ -267,8 +267,7 @@ app.post('/leavegame/', (req, res) => {
     let user = req.session.user;
     if (user == undefined) {
         // User is not logged in, redirect to welcome page
-        res.redirect('/welcome/');
-        return;
+        return res.redirect('/welcome/');
     }
 
     let player = players.find(p => p.user.id === req.sessionID);
@@ -279,16 +278,18 @@ app.post('/leavegame/', (req, res) => {
     }
 
     // Remove player from players array
-    players = players.slice(players.indexOf(player), 1);
+    players.splice(players.indexOf(player), 1);
 
     // Remove session, to make sure the user is logged out
     req.session.destroy(err => {
         if (err) {
+            console.error("Failed to destroy session:", err);
             return res.status(500).json({ error: "Failed to destroy session." });
         }
-    });
 
-    res.redirect('/welcome/'); // redirect user to welcome page
-})
+        // Explicitly send a redirect response
+        return res.redirect('/welcome/');
+    });
+});
 
 app.listen(8000, () => console.log('Test running'));
