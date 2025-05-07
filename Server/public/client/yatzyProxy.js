@@ -146,15 +146,13 @@ async function leaveGame() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
         });
-        if (!response.ok) {
+        if (response.status !== 200) {
             const error = await response.json();
             throw new Error(error.error || "Unknown error during leave game");
         }
-        const players = await response.json();
-        return players;
     }
     catch (err) {
-        alert(err.message);
+        //alert(err.message);
         window.location.href = "/welcome/";
     }
 }
