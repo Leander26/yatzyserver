@@ -1,5 +1,5 @@
 import {
-   startNewGame, throwDie, holdDice, selectField
+   gameState, throwDie, holdDice, selectField,startNewGame
 } from "./yatzyProxy.js"
 
 // Get game objects
@@ -123,13 +123,27 @@ function guiChangeDiceImg() {
  // Throw dice
  async function guiThrowDice() {
    let statusThrowCount = document.getElementById("statusThrowCount");
-   let rollButton = document.getElementById("btnRoll");
    players = await throwDie();
    dices = players[0].dices;
    guiChangeDiceImg();
    throwCount = players[0].throwCount;
-   drawScoreCardArea(players[0]);
+   drawScoreCardArea();
    statusThrowCount.innerHTML = 'THROWS: ' + players[0].throwCount;
+ }
+
+ // Start new game
+ async function guiStartNewGame() {
+   let statusThrowCount = document.getElementById("statusThrowCount");
+    if (!musicPlaying) {
+       var audio = document.getElementById("myAudio");
+       audio.currentTime = 0;
+       audio.play().catch(error => console.log("Autoplay blokeret:", error));
+       musicPlaying = true;
+   }
+   players = await startNewGame();
+   throwCount = players[0].throwCount;
+   drawScoreCardArea();
+   drawDicesDiv();
  }
 
  function drawButtonArea(){
@@ -142,23 +156,14 @@ function guiChangeDiceImg() {
    
       // Add event listeners to buttons
       let resetButton = document.getElementById("btnReset");
-      resetButton.addEventListener("click", () => {
-         //TODO -> Alter usage if drawPlayerArea() 
-         drawScoreCardArea();
-         if (!musicPlaying) {
-            var audio = document.getElementById("myAudio");
-            audio.currentTime = 0;
-            audio.play().catch(error => console.log("Autoplay blokeret:", error));
-            musicPlaying = true;
-         }
-      });
+      resetButton.addEventListener("click", guiStartNewGame);
       let rollButton = document.getElementById("btnRoll");
       rollButton.addEventListener("click", guiThrowDice);
  }
 
 // Draw HTMTL and calculate scorecard the first time.
 async function start() {
-   players = await startNewGame();
+   players = await gameState();
    dices = players[0].dices;
    throwCount = players[0].throwCount;
    fieldStatuses = players[0].fieldStatus;

@@ -1,4 +1,4 @@
-export {gameState as startNewGame,throwDie,holdDice,selectField, resetThrowCount}
+export {gameState,throwDie,holdDice,selectField, resetThrowCount,startNewGame}
 
 /**
  * Fetches the current list of players from the server.
@@ -8,15 +8,14 @@ export {gameState as startNewGame,throwDie,holdDice,selectField, resetThrowCount
  */
 async function gameState() {
     try {
-        const response = await fetch('/yatzy/');
-        if (response.status === 401) {
-            window.location.href = "/welcome/";
-         }
-
-        if (!response.ok) {
+        const response = await fetch('/yatzy/',{
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        if (response.status !=200) {
             const error = await response.json();
-            throw new Error(error.error || "Unknown error getting gameState");
-        }
+            throw new Error(error.error || "Unauthorized access");
+         }
             const players = await response.json();
             return players;
     }catch(err){
@@ -37,9 +36,9 @@ async function throwDie() {
             headers: { 'Content-Type': 'application/json' }
         });
     
-        if (!response.ok) {
+        if (response.status !=200) {
             const error = await response.json();
-            throw new Error(error.error || "Unknown error during throw");
+            throw new Error(error.error || "Unauthorized access");
         }
             const players = await response.json();
             return players;
@@ -62,9 +61,9 @@ async function holdDice(holdDicesArray) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ holdDices: holdDicesArray })
         });
-        if (!response.ok) {
+        if (response.status !=200) {
             const error = await response.json();
-            throw new Error(error.error || "Unknown error during holde dice");
+            throw new Error(error.error || "Unauthorized access");
         }
         const players = await response.json();
         return players;
@@ -87,9 +86,9 @@ async function selectField(selectedField) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ selectedField })
         });
-        if (!response.ok) {
+        if (response.status != 200) {
             const error = await response.json();
-            throw new Error(error.error || "Unknown error during select field");
+            throw new Error(error.error || "Unauthorized access");
         }
         const players = await response.json();
         return players;
@@ -110,9 +109,9 @@ async function resetThrowCount() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
         });
-        if (!response.ok) {
+        if (response.status !=200) {
             const error = await response.json();
-            throw new Error(error.error || "Unknown error during select reset throw count");
+            throw new Error(error.error || "Unauthorized access");
         }
         const players = await response.json();
         return players;
@@ -128,9 +127,9 @@ async function startNewGame() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
         });
-        if (!response.ok) {
+        if (response.status !=200) {
             const error = await response.json();
-            throw new Error(error.error || "Unknown error during start new game");
+            throw new Error(error.error || "Unauthorized access");
         }
         const players = await response.json();
         return players;

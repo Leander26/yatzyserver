@@ -121,7 +121,7 @@ app.get('/yatzy/', (req, res) => {
 app.post('/throwdice/', (req, res) => {
     let user = req.session.user;
     if (user == undefined) {
-        res.redirect('/welcome/');
+        return res.status(302).json({error: "Cannot throw dice due to missing player session."})
     } else {
         let player = players.find(p => p.user.id === req.sessionID);
 
@@ -149,7 +149,7 @@ app.post('/throwdice/', (req, res) => {
 app.post('/holddice/', (req, res) => {
     let user = req.session.user;
     if (user == undefined) {
-        res.redirect('/welcome/');
+        return res.status(302).json({error: "Cannot hold dice due to missing player session."})
     } else {
         let player = players.find(p => p.user.id === req.sessionID);
 
@@ -182,8 +182,7 @@ app.post('/holddice/', (req, res) => {
 app.post('/selectfield/', (req, res) => {
     let user = req.session.user;
     if (user == undefined) {
-        res.redirect('/welcome/');
-        return;
+        return res.status(302).json({error: "Cannot select field due to missing player session."})
     }
 
     let player = players.find(p => p.user.id === req.sessionID);
@@ -222,8 +221,7 @@ app.post('/selectfield/', (req, res) => {
 app.post('/resetthrowcount/', (req,res) => {
     let user = req.session.user;
     if (user == undefined) {
-        res.redirect('/welcome/');
-        return;
+        return res.status(302).json({error: "Cannot reset throw count due to missing player session."})
     }
 
     let player = players.find(p => p.user.id === req.sessionID);
@@ -238,8 +236,26 @@ app.post('/resetthrowcount/', (req,res) => {
     respondWithSortedPlayers(req, res);
 })
 
-app.post('startnewgame', (req,res) => {
-    
+app.post('/startnewgame/', (req,res) => {
+    let user = req.session.user;
+    if (user == undefined) {
+        return res.status(302).json({error: "Cannot reset throw count due to missing player session."})
+    }
+
+    let player = players.find(p => p.user.id === req.sessionID);
+
+    if (!player) {
+        return res.status(404).json({ error: "Player not found." });
+    }
+
+    // Reset player
+    player.throwCount = 0;
+    player.scorecard = getNewScoreCard();
+    player.fieldStatus = getNewFieldStatus();
+    player.dices = getDices();
+
+    respondWithSortedPlayers(req, res);
+
 })
 
 app.listen(8000, () => console.log('Test running'));
