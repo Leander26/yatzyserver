@@ -313,7 +313,7 @@ function updateFieldsLeft(scoreCard) {
  // Calulate fields on the scorecard. Values are only calculated if the field is not used.
  function calculateScoreCard(scoreCard, dices, fieldStatus) {
     for (const field in fieldStatus) {
-        if (fieldStatus[field] === "open") {
+        if (fieldStatus[field] === "open" || fieldStatus[field] === "locked") {
             switch (field) {
                 case 'onesPoints':
                     scoreCard.onesPoints = sameValuePoints(dices, 1);
