@@ -1,7 +1,5 @@
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { get } from './get.js'
-import { renderFile } from 'pug';
 import { join } from 'path';
 import express, { response, json } from 'express';
 import sessions from 'express-session';
@@ -12,7 +10,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 let app = express();
 app.use(sessions({ secret: 'hemmelig', saveUninitialized: true, cookie: { maxAge: 1000 * 60 * 20 }, resave: false }));
 app.use(json());
-
 
 app.set('view engine', 'pug');
 app.set('views', join(__dirname, '/views'));
