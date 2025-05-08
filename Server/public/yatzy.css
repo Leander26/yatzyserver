@@ -44,11 +44,11 @@ h4 {
 input {
    font-family: nes-font;
    width: 300px;
-   height: 28px;
+   height: 30px;
    text-align: right;
-   background-size: 64px 30px;
-   background-repeat: repeat;
-   background-image: url(/client/Media/inputSvg.svg);
+   background-size: 300px 30px;
+   background-repeat: no-repeat;
+   background-image: url(/client/Media/nameInput.svg);
    background-color: transparent;
    border: none;
    align-self: center;
@@ -56,8 +56,12 @@ input {
 }
 
 input:hover {
-   background-image: url(/client/Media/inputSvgDisabled.svg);
+   background-image: url(/client/Media/nameInputDisabled.svg);
    color: white;
+   /* set placeholder color to white */
+   &::placeholder {
+      color: white;
+   }
 }
 
 input:disabled {
