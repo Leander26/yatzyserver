@@ -5,7 +5,7 @@ import { renderFile } from 'pug';
 import { join } from 'path';
 import express, { response, json } from 'express';
 import sessions from 'express-session';
-import { getDices, getNewScoreCard, getNewFieldStatus,throwDices,calculateScoreCard } from './gameLogic.js'
+import { getDices, getNewScoreCard, getNewFieldStatus, throwDices, calculateScoreCard } from './gameLogic.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -68,7 +68,7 @@ function respondWithSortedPlayers(req, res) {
 * @returns {HTML} The welcome page.
  */
 app.get('/welcome/', async (req, res) => {
-    res.render('welcome', {playerCount: players.length, maxPlayers : maxPlayers});
+    res.render('welcome', { playerCount: players.length, maxPlayers: maxPlayers });
 });
 
 /**
@@ -132,7 +132,7 @@ app.get('/yatzy/', (req, res) => {
 app.post('/throwdice/', (req, res) => {
     let user = req.session.user;
     if (user == undefined) {
-        return res.status(302).json({error: "Cannot throw dice due to missing player session."})
+        return res.status(302).json({ error: "Cannot throw dice due to missing player session." })
     } else {
         let player = players.find(p => p.user.id === req.sessionID);
 
@@ -162,7 +162,7 @@ app.post('/throwdice/', (req, res) => {
 app.post('/holddice/', (req, res) => {
     let user = req.session.user;
     if (user == undefined) {
-        return res.status(302).json({error: "Cannot hold dice due to missing player session."})
+        return res.status(302).json({ error: "Cannot hold dice due to missing player session." })
     } else {
         let player = players.find(p => p.user.id === req.sessionID);
 
@@ -197,7 +197,7 @@ app.post('/holddice/', (req, res) => {
 app.post('/selectfield/', (req, res) => {
     let user = req.session.user;
     if (user == undefined) {
-        return res.status(302).json({error: "Cannot select field due to missing player session."})
+        return res.status(302).json({ error: "Cannot select field due to missing player session." })
     }
 
     let player = players.find(p => p.user.id === req.sessionID);
@@ -235,10 +235,10 @@ app.post('/selectfield/', (req, res) => {
  * @returns {object[]} Updated list of player objects.
  * @returns {status} 302 if session is missing, 404 if player not found.
  */
-app.post('/resetthrowcount/', (req,res) => {
+app.post('/resetthrowcount/', (req, res) => {
     let user = req.session.user;
     if (user == undefined) {
-        return res.status(302).json({error: "Cannot reset throw count due to missing player session."})
+        return res.status(302).json({ error: "Cannot reset throw count due to missing player session." })
     }
 
     let player = players.find(p => p.user.id === req.sessionID);
@@ -262,18 +262,11 @@ app.post('/resetthrowcount/', (req,res) => {
  * @returns {object[]} Updated list of player objects.
  * @returns {status} 302 if session is missing, 404 if player not found.
  */
-app.post('/startnewgame/', (req,res) => {
+app.post('/startnewgame/', (req, res) => {
     let user = req.session.user;
     if (user == undefined) {
-        return res.status(302).json({error: "Cannot reset throw count due to missing player session."})
+        return res.status(302).json({ error: "Cannot reset throw count due to missing player session." })
     }
-
-    let player = players.find(p => p.user.id === req.sessionID);
-
-    if (!player) {
-        return res.status(404).json({ error: "Player not found." });
-    }
-
     // Reset player
     player.throwCount = 0;
     player.scorecard = getNewScoreCard();
@@ -282,8 +275,28 @@ app.post('/startnewgame/', (req,res) => {
     player.lastUpdated = Date.now();
 
     respondWithSortedPlayers(req, res);
-
 })
+
+app.post('/leavegame/', (req, res) => {
+    // Check if user is logged in
+    let user = req.session.user;
+    if (user == undefined) {
+        // User is not logged in, redirect to welcome page
+        return res.redirect('/welcome/');
+    }
+
+    let player = players.find(p => p.user.id === req.sessionID);
+
+    // Check if player exists in the game
+    if (!player) {
+        return res.status(404).json({ error: "Player not found." });
+    }
+
+    // Remove player from players array
+    players = players.filter(p => p.user.id !== req.sessionID);
+
+    return res.status(302).json({ error: "Player removed from game." });
+});
 
 /**
  * Ensures that inactive players will release their session.
