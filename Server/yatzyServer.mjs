@@ -1,7 +1,5 @@
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { get } from './get.js'
-import { renderFile } from 'pug';
 import { join } from 'path';
 import express, { response, json } from 'express';
 import sessions from 'express-session';
