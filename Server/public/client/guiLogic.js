@@ -194,8 +194,9 @@ function countDown(){
    countDownValue = Math.floor(players[0].lifeCycle - (Date.now() - players[0].lastUpdated) / 1000);
    element.innerHTML = `COUNT DOWN:  ${countDownValue} SECONDS`;
    if (countDownValue < 0){
-      alert("Player session has expiered. Please login again!");
-      window.location.href = "/welcome/";
+        players[0].lastUpdated = Date.now();
+        alert("Player session has expiered. Please login again!");
+        window.location.href = "/welcome/";
    }
 }
 

@@ -11,7 +11,6 @@ let app = express();
 app.use(sessions({ secret: 'hemmelig', saveUninitialized: true, cookie: { maxAge: 1000 * 60 * 20 }, resave: false }));
 app.use(json());
 
-
 app.set('view engine', 'pug');
 app.set('views', join(__dirname, '/views'));
 app.set('public', join(__dirname, '/public'));
