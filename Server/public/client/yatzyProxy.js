@@ -122,6 +122,11 @@ async function resetThrowCount() {
     }
 }
 
+/**
+ * Starts a new game by sending a request to the server.
+ *
+ * @returns {Promise<object[]>} Resolves to an array of player objects.
+ */
 async function startNewGame() {
     try {
         const response = await fetch('/startnewgame/', {
@@ -140,6 +145,11 @@ async function startNewGame() {
     }
 }
 
+/**
+ * Leaves the current game by sending a request to the server.
+ * If the session is invalid, redirects to /welcome/.
+ * 
+ */
 async function leaveGame() {
     try {
         const response = await fetch('/leavegame/', {
