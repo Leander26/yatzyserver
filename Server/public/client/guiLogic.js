@@ -170,10 +170,6 @@ function drawButtonArea() {
     leaveButton.addEventListener("click", leaveGame);
 }
 
-//function leaveGame() {
-//    leaveGame();
-//}
-
 // Draw HTMTL and calculate scorecard the first time.
 async function start() {
    players = await gameState();
