@@ -210,9 +210,13 @@ async function updateLifeCycle(){
         leaveGame();
    }
 
-    let allPlayersSelected = players.every(player => {
-        return Object.values(player.scorecard.fieldsLeft).filter(status => status === 0);
-    });
+    let allPlayersSelected = true;
+
+    for (const p of players) {
+        if (p.scorecard.fieldsLeft != 0){
+            allPlayersSelected = false;
+        }
+    }
 
     if (allPlayersSelected) {
         let winner = players.reduce((prev, current) => {
