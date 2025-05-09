@@ -4,6 +4,7 @@ import {
 
 // Get game objects
 let players = [];
+let gameOn = true;
 let dices = null;
 let throwCount = null;
 let countDownValue = null;
@@ -22,7 +23,13 @@ let scorecardIDs = [
     'largeStraightPoints', 'chancePoints', 'yatzyPoints', 'totalPoints'
 ];
 
-// Helper method
+/**
+ * Returns an array of booleans indicating the hold status of each dice.
+ * It iterates through the dices array and pushes the hold status of each dice into the array.
+ * The function is used to send the hold status to the server when a dice is clicked.
+ * @param {Array} dices - Array of dice objects.
+ * @returns {Array} - Array of booleans indicating the hold status of each dice.
+ */
 function getDicesHoldStatus() {
     const array = [];
 
@@ -33,7 +40,12 @@ function getDicesHoldStatus() {
     return array;
 }
 
-// Draw dices
+/**
+ * Draws the dice images and the throw count in the UI.
+ * It creates a div for each dice and populates it with the corresponding image.
+ * The function also adds event listeners to the dice images for click events.
+ * When a dice is clicked, it toggles the hold status and updates the scorecard area.
+ */
 function drawDicesDiv() {
    let diceDiv = document.querySelector('.dices');
    let diceHTML = "";
@@ -42,7 +54,7 @@ function drawDicesDiv() {
    }
    diceHTML += `<div>
                <p id="statusThrowCount">THROWS: ${throwCount}</p>
-               <p id="lifeCycle">COUNT DOWN: ${countDownValue}</p>
+               <p id="lifeCycle">COUNT DOWN: ${countDownValue} SECONDS</p>
                </div>`;
    diceDiv.innerHTML = diceHTML;
 
@@ -74,7 +86,14 @@ function drawDicesDiv() {
     addEventListeners();
 }
 
-// Draw html elements
+/**
+ * Draws the scorecard area for each player.
+ * It creates a div for each player and populates it with their scorecard information.
+ * The scorecard includes fields for points, bonus, and various scoring categories.
+ * The function also adds event listeners to the input fields for selecting fields.
+ * The event listeners handle the click events and update the scorecard accordingly.
+ * @returns {Promise<void>}
+ */
 function drawScoreCardArea() {
     const pointDiv = document.querySelector('.points');
     pointDiv.innerHTML = "";
@@ -103,15 +122,25 @@ function drawScoreCardArea() {
         field.addEventListener('click', async function () {
             const [scorecardID, playerId] = this.id.split("|");
             if (playerId === players[0].user.id && throwCount > 0) {
+                drawDicesDiv();
+                let statusThrowCount = document.getElementById("statusThrowCount");
                 players = await selectField(scorecardID);
                 fieldStatuses = players[0].fieldStatus;
+                throwCount = players[0].throwCount;
                 drawScoreCardArea();
+                statusThrowCount.innerHTML = 'THROWS: ' + players[0].throwCount;
             }
         });
     });
 }
 
-// Change dice images
+/**
+ * Updates the dice images based on their values and hold status.
+ * It changes the image source for each dice based on its value and whether it is held or not.
+ * The function is called when the dice are rolled or when the hold status changes.
+ * It uses a loop to iterate through the dice images and update their sources accordingly.
+ * @returns {Promise<void>}
+ */
 function guiChangeDiceImg() {
     let diceImages = document.querySelectorAll('img');
 
@@ -124,7 +153,14 @@ function guiChangeDiceImg() {
     }
 }
 
-// Throw dice
+/**
+ * Handles the event when the user clicks on a dice image.
+ * It updates the dice image based on the current value and hold status.
+ * It also updates the throw count and the scorecard area.
+ * The function is called when the user clicks on a dice image.
+ * It fetches the updated player data from the server and updates the UI accordingly.
+ * @returns {Promise<void>}
+ */
 async function guiThrowDice() {
     let statusThrowCount = document.getElementById("statusThrowCount");
     players = await throwDie();
@@ -135,7 +171,14 @@ async function guiThrowDice() {
     statusThrowCount.innerHTML = 'THROWS: ' + players[0].throwCount;
 }
 
-// Start new game
+/**
+ * Starts a new game by resetting the game state and updating the UI.
+ * It fetches the player data, including dice values and throw count,
+ * and updates the UI elements accordingly.
+ * The function is called when the user clicks the "New Game" button.
+ * It also plays background music if it is not already playing.
+ * @returns {Promise<void>}
+ */
 async function guiStartNewGame() {
     let statusThrowCount = document.getElementById("statusThrowCount");
     if (!musicPlaying) {
@@ -150,7 +193,16 @@ async function guiStartNewGame() {
     drawDicesDiv();
 }
 
-// Draw button div
+/**
+ * Draws the button area with event listeners for the buttons.
+ * It creates buttons for rolling the dice, starting a new game,
+ * and leaving the game.
+ * The buttons are added to the button panel in the HTML.
+ * The event listeners are set up to call the respective functions
+ * when the buttons are clicked.
+ * The function is called when the script is loaded.
+ * @returns {Promise<void>}
+ */
 function drawButtonArea() {
     let newElements = "";
     // Add button panel
@@ -170,7 +222,14 @@ function drawButtonArea() {
     leaveButton.addEventListener("click", leaveGame);
 }
 
-// Draw HTMTL and calculate scorecard the first time.
+/**
+ * Initializes the game by fetching the game state and setting up the UI.
+ * It retrieves the player data, including dice values and throw count,
+ * and updates the UI elements accordingly.
+ * It also sets up the countdown timer for the game lifecycle.
+ * The function is called when the script is loaded.
+ * @returns {Promise<void>}
+ */
 async function start() {
    players = await gameState();
    dices = players[0].dices;
@@ -183,6 +242,7 @@ async function start() {
    drawButtonArea();
    drawScoreCardArea()
 }
+
 /**
 ** Updates the life cycle countdown and checks for game completion.
 ** If all players have selected all fields, it alerts the winner and redirects to the welcome page.
@@ -192,45 +252,55 @@ async function start() {
  */
 async function updateLifeCycle(){
    let element = document.querySelector('#lifeCycle');
+   let allPlayersSelected = true;
 
-   players;
+    if (gameOn) {
+        if (players[0].scorecard.fieldsLeft != 0) {
+            countDownValue = Math.floor(players[0].lifeCycle - (Date.now() - players[0].lastUpdated) / 1000);
+         }else {
+             countDownValue = Math.floor(players[0].lifeCycleFinish - (Date.now() - players[0].lastUpdated) / 1000);
+             players = await gameState();
+             drawScoreCardArea();
+         }
+         
+         element.innerHTML = `COUNT DOWN:  ${countDownValue} SECONDS`;
+         if (countDownValue < 0){
+             players[0].lastUpdated = Date.now();
+             alert("Player session has expiered. Please login again!");
+             leaveGame();
+         }
+      
+         for (const p of players) {
+             if (p.scorecard.fieldsLeft != 0){
+                 allPlayersSelected = false;
+             }
+         }
 
-    if (players[0].scorecard.fieldsLeft != 0) {
-        countDownValue = Math.floor(players[0].lifeCycle - (Date.now() - players[0].lastUpdated) / 1000);
-    }else {
-        countDownValue = Math.floor(players[0].lifeCycleFinish - (Date.now() - players[0].lastUpdated) / 1000);
-        players = await gameState();
-        drawScoreCardArea();
+         if (allPlayersSelected) {
+             gameOn = false;
+             let winner = players.reduce((prev, current) => {
+                 return (prev.scorecard.totalPoints > current.scorecard.totalPoints) ? prev : current;
+             });
+      
+             alert("*** Game is finished ***\n" +
+                   "All players have selected all fields.\n" +
+                   "The winner is: " + winner.user.username + "\n" +
+                   "With a total score of: " + (winner.scorecard.totalPoints ?? 0));
+             
+             leaveGame();
+         }
     }
+   
+ 
 
-   element.innerHTML = `COUNT DOWN:  ${countDownValue} SECONDS`;
-   if (countDownValue < 0){
-        players[0].lastUpdated = Date.now();
-        alert("Player session has expiered. Please login again!");
-        leaveGame();
-   }
-
-    let allPlayersSelected = true;
-
-    for (const p of players) {
-        if (p.scorecard.fieldsLeft != 0){
-            allPlayersSelected = false;
-        }
-    }
-
-    if (allPlayersSelected) {
-        let winner = players.reduce((prev, current) => {
-            return (prev.scorecard.totalPoints > current.scorecard.totalPoints) ? prev : current;
-        });
-
-        alert("*** Game is finished ***\n" +
-              "All players have selected all fields.\n" +
-              "The winner is: " + winner.user.username + "\n" +
-              "With a total score of: " + (winner.scorecard.totalPoints ?? 0));
-        
-        leaveGame();
-    }
 }
 
+/**
+ * Sets up the interval to update the life cycle countdown every second.
+ * It calls the updateLifeCycle function to check the game state and update the UI.
+ * The interval is set to 1000 milliseconds (1 second).
+ * The function is called when the script is loaded.
+ * @returns {Promise<void>}
+ */
 setInterval(() => updateLifeCycle(),1000);
 start();

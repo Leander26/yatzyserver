@@ -20,7 +20,7 @@ app.use(express.static(join(__dirname, 'public')));
 
 let players = [];
 const maxPlayers = 6;
-const lifeCycle = 300; // seconds
+const lifeCycle = 30; // seconds
 const lifeCycleFinish = 600; // seconds
 class Player {
     constructor(user) {
@@ -98,7 +98,6 @@ app.get('/auth', (req, res) => {
     return res.sendStatus(200); // OK, session sat
 });
 
-
 /**
  * Returns the sorted list of player objects for the current session.
  *
@@ -152,7 +151,7 @@ app.post('/throwdice/', (req, res) => {
     
             // Beregner mulige points på åbne felter
             calculateScoreCard(player.scorecard, player.dices, player.fieldStatus);
-           player.lastUpdated = Date.now();
+            player.lastUpdated = Date.now();
         }
 
         respondWithSortedPlayers(req, res);
@@ -219,7 +218,7 @@ app.post('/selectfield/', (req, res) => {
     }
 
     // Check if the player has selected all fields
-    if (player.scorecard.fieldsLeft !=0) {
+    if (player.scorecard.fieldsLeft !=0 && player.throwCount != 0) {
         const { selectedField } = req.body;
     
         if (!selectedField || !(selectedField in player.fieldStatus)) {
@@ -230,10 +229,11 @@ app.post('/selectfield/', (req, res) => {
             return res.status(400).json({ error: "Field already selected." });
         }
     
-        // Lås feltet
+        // Mark the field as used
         player.fieldStatus[selectedField] = "used";
     
-        // Nulstil terninger til næste runde
+        // Update scorecard and prepare for next round
+        calculateScoreCard(player.scorecard, player.dices, player.fieldStatus);
         player.dices = getDices();
         player.dices.forEach(dice => dice.setOnHoldStatus(false));
         player.throwCount = 0;
@@ -331,6 +331,10 @@ function cleanUpPlayerList(){
         
 }
 
+/**
+ * Cleans up the player list every second.
+ * This function removes players who have been inactive for a certain period.
+ */
 setInterval(() => cleanUpPlayerList(),1000);
 
 app.listen(8000, () => console.log('Test running'));
