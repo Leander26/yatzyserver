@@ -18,7 +18,7 @@ app.use(express.static(join(__dirname, 'public')));
 
 let players = [];
 const maxPlayers = 6;
-const lifeCycle = 30;
+const lifeCycle = 5;;
 class Player {
     constructor(user) {
         this.user = user;
@@ -265,6 +265,7 @@ app.post('/startnewgame/', (req, res) => {
         return res.status(302).json({ error: "Cannot reset throw count due to missing player session." })
     }
     // Reset player
+    let player = players.find(p => p.user.id === req.sessionID);
     player.throwCount = 0;
     player.scorecard = getNewScoreCard();
     player.fieldStatus = getNewFieldStatus();
@@ -299,15 +300,7 @@ app.post('/leavegame/', (req, res) => {
  * Ensures that inactive players will release their session.
  */
 function cleanUpPlayerList(){
-    const temp = [];
-    for (let index = 0; index < players.length; index++) {
-        const element = players[index];
-        if(Math.floor((Date.now() - element.lastUpdated) / 1000) < lifeCycle){
-            temp.push(element);
-        }
-    }
-
-    players = temp;
+    players = players.filter(p => (Math.floor((Date.now() - p.lastUpdated) / 1000) < lifeCycle));
 }
 
 setInterval(() => cleanUpPlayerList(),1000);
