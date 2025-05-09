@@ -193,7 +193,9 @@ async function start() {
 async function updateLifeCycle(){
    let element = document.querySelector('#lifeCycle');
 
-    if (players[0].scorecard.fieldsLeft =! 0) {
+   players;
+
+    if (players[0].scorecard.fieldsLeft != 0) {
         countDownValue = Math.floor(players[0].lifeCycle - (Date.now() - players[0].lastUpdated) / 1000);
     }else {
         countDownValue = Math.floor(players[0].lifeCycleFinish - (Date.now() - players[0].lastUpdated) / 1000);

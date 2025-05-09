@@ -20,7 +20,7 @@ app.use(express.static(join(__dirname, 'public')));
 
 let players = [];
 const maxPlayers = 6;
-const lifeCycle = 30; // seconds
+const lifeCycle = 300; // seconds
 const lifeCycleFinish = 600; // seconds
 class Player {
     constructor(user) {
