@@ -4,7 +4,7 @@
     "express": "^5.1.0",
     "express-session": "^1.18.1",
     "json": "^11.0.0",
-    "mocha": "^11.1.0",
+    "mocha": "^11.2.2",
     "node-fetch": "^3.3.2",
     "pug": "^3.0.3"
   },
@@ -12,7 +12,7 @@
   "version": "1.0.0",
   "main": "gameLogic.js",
   "scripts": {
-    "test": "mocha 'test/*test.js'"
+    "test": "mocha 'Test/*test.js'"
   },
   "repository": {
     "type": "git",
