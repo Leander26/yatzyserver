@@ -117,8 +117,7 @@ app.get('/yatzy/', (req, res) => {
         }
 
         // Check if the player has selected all fields
-        let countOfSelectedFields = Object.values(player.fieldStatus).filter(status => status === "used").length;
-        if (countOfSelectedFields < 15) {
+        if (player.scorecard.fieldsLeft !=0 && player.throwCount < 3 ) {
            player.lastUpdated = Date.now();
         }
 
@@ -145,8 +144,7 @@ app.post('/throwdice/', (req, res) => {
         }
 
         // Check if the player has selected all fields
-        let countOfSelectedFields = Object.values(player.fieldStatus).filter(status => status === "used").length;
-        if (countOfSelectedFields < 15) {
+        if (player.scorecard.fieldsLeft !=0 && player.throwCount < 3) {
             // Kaster kun de terninger, der ikke er på hold
             throwDices(player.dices, player);
     
@@ -179,8 +177,7 @@ app.post('/holddice/', (req, res) => {
         }
 
         // Check if the player has selected all fields
-        let countOfSelectedFields = Object.values(player.fieldStatus).filter(status => status === "used").length;
-        if (countOfSelectedFields < 15) {
+        if (player.scorecard.fieldsLeft !=0 && player.throwCount < 3) {
             const { holdDices } = req.body;
     
             if (!holdDices || holdDices.length !== 5) {
@@ -220,8 +217,7 @@ app.post('/selectfield/', (req, res) => {
     }
 
     // Check if the player has selected all fields
-        let countOfSelectedFields = Object.values(player.fieldStatus).filter(status => status === "used").length;
-        if (countOfSelectedFields < 15) {
+        if (player.scorecard.fieldsLeft !=0) {
             const { selectedField } = req.body;
         
             if (!selectedField || !(selectedField in player.fieldStatus)) {
@@ -265,8 +261,7 @@ app.post('/resetthrowcount/', (req, res) => {
     }
 
     // Check if the player has selected all fields
-        let countOfSelectedFields = Object.values(player.fieldStatus).filter(status => status === "used").length;
-        if (countOfSelectedFields < 15) {
+        if (player.scorecard.fieldsLeft !=0) {
             // Reset throwCount
             player.throwCount = 0;
             player.lastUpdated = Date.now();
@@ -325,9 +320,7 @@ app.post('/leavegame/', (req, res) => {
  */
 function cleanUpPlayerList(){
     players = players.filter(p => {
-        let countOfSelectedFields = Object.values(p.fieldStatus).filter(status => status === "used").length;
-
-        if (countOfSelectedFields < 15) {
+        if (p.scorecard.fieldsLeft !=0) {
             return (Math.floor((Date.now() - p.lastUpdated) / 1000) < lifeCycle);
         }else{
             return (Math.floor((Date.now() - p.lastUpdated) / 1000) < lifeCycleFinish);

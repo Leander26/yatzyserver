@@ -196,9 +196,8 @@ async function start() {
  */
 async function updateLifeCycle(){
    let element = document.querySelector('#lifeCycle');
-   let countOfSelectedFields = Object.values(players[0].fieldStatus).filter(status => status === "used").length;
 
-    if (countOfSelectedFields < 15) {
+    if (players[0].scorecard.fieldsLeft =! 0) {
         countDownValue = Math.floor(players[0].lifeCycle - (Date.now() - players[0].lastUpdated) / 1000);
     }else {
         countDownValue = Math.floor(players[0].lifeCycleFinish - (Date.now() - players[0].lastUpdated) / 1000);
@@ -214,7 +213,7 @@ async function updateLifeCycle(){
    }
 
     let allPlayersSelected = players.every(player => {
-        return Object.values(player.fieldStatus).filter(status => status === "used").length === 15;
+        return Object.values(player.fieldsLeft).filter(status => status === 0);
     });
 
     if (allPlayersSelected) {
