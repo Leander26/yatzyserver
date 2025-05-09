@@ -219,26 +219,26 @@ app.post('/selectfield/', (req, res) => {
     }
 
     // Check if the player has selected all fields
-        if (player.scorecard.fieldsLeft !=0) {
-            const { selectedField } = req.body;
-        
-            if (!selectedField || !(selectedField in player.fieldStatus)) {
-                return res.status(400).json({ error: "Invalid selectedField." });
-            }
-        
-            if (player.fieldStatus[selectedField] === "used") {
-                return res.status(400).json({ error: "Field already selected." });
-            }
-        
-            // Lås feltet
-            player.fieldStatus[selectedField] = "used";
-        
-            // Nulstil terninger til næste runde
-            player.dices = getDices();
-            player.dices.forEach(dice => dice.setOnHoldStatus(false));
-            player.throwCount = 0;
-            player.lastUpdated = Date.now();
+    if (player.scorecard.fieldsLeft !=0) {
+        const { selectedField } = req.body;
+    
+        if (!selectedField || !(selectedField in player.fieldStatus)) {
+            return res.status(400).json({ error: "Invalid selectedField." });
         }
+    
+        if (player.fieldStatus[selectedField] === "used") {
+            return res.status(400).json({ error: "Field already selected." });
+        }
+    
+        // Lås feltet
+        player.fieldStatus[selectedField] = "used";
+    
+        // Nulstil terninger til næste runde
+        player.dices = getDices();
+        player.dices.forEach(dice => dice.setOnHoldStatus(false));
+        player.throwCount = 0;
+        player.lastUpdated = Date.now();
+    }
 
     respondWithSortedPlayers(req, res);
 });
