@@ -178,7 +178,7 @@ app.post('/holddice/', (req, res) => {
         }
 
         // Check if the player has selected all fields
-        if (player.scorecard.fieldsLeft !=0 && player.throwCount < 3) {
+        if (player.scorecard.fieldsLeft !=0 && player.throwCount < 3 && player.throwCount > 0) {
             const { holdDices } = req.body;
     
             if (!holdDices || holdDices.length !== 5) {
