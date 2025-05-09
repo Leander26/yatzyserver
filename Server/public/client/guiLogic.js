@@ -209,7 +209,7 @@ async function updateLifeCycle(){
    }
 
     let allPlayersSelected = players.every(player => {
-        return Object.values(player.fieldsLeft).filter(status => status === 0);
+        return Object.values(player.scorecard.fieldsLeft).filter(status => status === 0);
     });
 
     if (allPlayersSelected) {
