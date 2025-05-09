@@ -18,7 +18,8 @@ app.use(express.static(join(__dirname, 'public')));
 
 let players = [];
 const maxPlayers = 6;
-const lifeCycle = 30;
+const lifeCycle = 30; // seconds
+const lifeCycleFinish = 600; // seconds
 class Player {
     constructor(user) {
         this.user = user;
@@ -28,6 +29,7 @@ class Player {
         this.throwCount = 0;
         this.lastUpdated = Date.now();
         this.lifeCycle = lifeCycle;
+        this.lifeCycleFinish = lifeCycleFinish;
     }
 }
 
@@ -114,7 +116,12 @@ app.get('/yatzy/', (req, res) => {
             return res.status(404).json({ error: "Player not found." });
         }
 
-        player.lastUpdated = Date.now();
+        // Check if the player has selected all fields
+        let countOfSelectedFields = Object.values(player.fieldStatus).filter(status => status === "used").length;
+        if (countOfSelectedFields < 15) {
+           player.lastUpdated = Date.now();
+        }
+
         respondWithSortedPlayers(req, res);
     }
 });
@@ -137,12 +144,16 @@ app.post('/throwdice/', (req, res) => {
             return res.status(404).json({ error: "Player not found." });
         }
 
-        // Kaster kun de terninger, der ikke er på hold
-        throwDices(player.dices, player);
-
-        // Beregner mulige points på åbne felter
-        calculateScoreCard(player.scorecard, player.dices, player.fieldStatus);
-        player.lastUpdated = Date.now();
+        // Check if the player has selected all fields
+        let countOfSelectedFields = Object.values(player.fieldStatus).filter(status => status === "used").length;
+        if (countOfSelectedFields < 15) {
+            // Kaster kun de terninger, der ikke er på hold
+            throwDices(player.dices, player);
+    
+            // Beregner mulige points på åbne felter
+            calculateScoreCard(player.scorecard, player.dices, player.fieldStatus);
+           player.lastUpdated = Date.now();
+        }
 
         respondWithSortedPlayers(req, res);
     }
@@ -167,17 +178,22 @@ app.post('/holddice/', (req, res) => {
             return res.status(404).json({ error: "Player not found." });
         }
 
-        const { holdDices } = req.body;
-
-        if (!holdDices || holdDices.length !== 5) {
-            return res.status(400).json({ error: "Invalid holdDices data." });
+        // Check if the player has selected all fields
+        let countOfSelectedFields = Object.values(player.fieldStatus).filter(status => status === "used").length;
+        if (countOfSelectedFields < 15) {
+            const { holdDices } = req.body;
+    
+            if (!holdDices || holdDices.length !== 5) {
+                return res.status(400).json({ error: "Invalid holdDices data." });
+            }
+    
+            // Opdater onHold status for hver terning
+            for (let i = 0; i < player.dices.length; i++) {
+                player.dices[i].setOnHoldStatus(holdDices[i]);
+            }
+            player.lastUpdated = Date.now();
         }
 
-        // Opdater onHold status for hver terning
-        for (let i = 0; i < player.dices.length; i++) {
-            player.dices[i].setOnHoldStatus(holdDices[i]);
-        }
-        player.lastUpdated = Date.now();
 
         respondWithSortedPlayers(req, res);
     }
@@ -203,24 +219,28 @@ app.post('/selectfield/', (req, res) => {
         return res.status(404).json({ error: "Player not found." });
     }
 
-    const { selectedField } = req.body;
-
-    if (!selectedField || !(selectedField in player.fieldStatus)) {
-        return res.status(400).json({ error: "Invalid selectedField." });
-    }
-
-    if (player.fieldStatus[selectedField] === "used") {
-        return res.status(400).json({ error: "Field already selected." });
-    }
-
-    // Lås feltet
-    player.fieldStatus[selectedField] = "used";
-
-    // Nulstil terninger til næste runde
-    player.dices = getDices();
-    player.dices.forEach(dice => dice.setOnHoldStatus(false));
-    player.throwCount = 0;
-    player.lastUpdated = Date.now();
+    // Check if the player has selected all fields
+        let countOfSelectedFields = Object.values(player.fieldStatus).filter(status => status === "used").length;
+        if (countOfSelectedFields < 15) {
+            const { selectedField } = req.body;
+        
+            if (!selectedField || !(selectedField in player.fieldStatus)) {
+                return res.status(400).json({ error: "Invalid selectedField." });
+            }
+        
+            if (player.fieldStatus[selectedField] === "used") {
+                return res.status(400).json({ error: "Field already selected." });
+            }
+        
+            // Lås feltet
+            player.fieldStatus[selectedField] = "used";
+        
+            // Nulstil terninger til næste runde
+            player.dices = getDices();
+            player.dices.forEach(dice => dice.setOnHoldStatus(false));
+            player.throwCount = 0;
+            player.lastUpdated = Date.now();
+        }
 
     respondWithSortedPlayers(req, res);
 });
@@ -244,9 +264,13 @@ app.post('/resetthrowcount/', (req, res) => {
         return res.status(404).json({ error: "Player not found." });
     }
 
-    // Reset throwCount
-    player.throwCount = 0;
-    player.lastUpdated = Date.now();
+    // Check if the player has selected all fields
+        let countOfSelectedFields = Object.values(player.fieldStatus).filter(status => status === "used").length;
+        if (countOfSelectedFields < 15) {
+            // Reset throwCount
+            player.throwCount = 0;
+            player.lastUpdated = Date.now();
+        }
 
     respondWithSortedPlayers(req, res);
 })
@@ -265,6 +289,7 @@ app.post('/startnewgame/', (req, res) => {
         return res.status(302).json({ error: "Cannot reset throw count due to missing player session." })
     }
     // Reset player
+    let player = players.find(p => p.user.id === req.sessionID);
     player.throwCount = 0;
     player.scorecard = getNewScoreCard();
     player.fieldStatus = getNewFieldStatus();
@@ -299,15 +324,16 @@ app.post('/leavegame/', (req, res) => {
  * Ensures that inactive players will release their session.
  */
 function cleanUpPlayerList(){
-    const temp = [];
-    for (let index = 0; index < players.length; index++) {
-        const element = players[index];
-        if(Math.floor((Date.now() - element.lastUpdated) / 1000) < lifeCycle){
-            temp.push(element);
-        }
-    }
+    players = players.filter(p => {
+        let countOfSelectedFields = Object.values(p.fieldStatus).filter(status => status === "used").length;
 
-    players = temp;
+        if (countOfSelectedFields < 15) {
+            return (Math.floor((Date.now() - p.lastUpdated) / 1000) < lifeCycle);
+        }else{
+            return (Math.floor((Date.now() - p.lastUpdated) / 1000) < lifeCycleFinish);
+        }
+    });
+        
 }
 
 setInterval(() => cleanUpPlayerList(),1000);
