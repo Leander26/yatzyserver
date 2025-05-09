@@ -312,6 +312,10 @@ function updateFieldsLeft(scoreCard) {
 
  // Calulate fields on the scorecard. Values are only calculated if the field is not used.
  function calculateScoreCard(scoreCard, dices, fieldStatus) {
+    // Check if the field is open or locked
+    scoreCard.fieldsLeft = Object.values(fieldStatus).filter(status => status === "open").length;
+    
+    // Calculate the score for each field
     for (const field in fieldStatus) {
         if (fieldStatus[field] === "open" || fieldStatus[field] === "locked") {
             switch (field) {

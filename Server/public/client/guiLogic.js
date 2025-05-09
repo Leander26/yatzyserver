@@ -187,18 +187,48 @@ async function start() {
    drawButtonArea();
    drawScoreCardArea()
 }
-
-// Updates count down field.
-function countDown(){
+/**
+** Updates the life cycle countdown and checks for game completion.
+** If all players have selected all fields, it alerts the winner and redirects to the welcome page.
+** If the countdown reaches zero, it alerts the user and redirects to the welcome page.
+** It also checks if all players have selected all fields and alerts the winner.
+** @returns {Promise<void>}
+ */
+async function updateLifeCycle(){
    let element = document.querySelector('#lifeCycle');
-   countDownValue = Math.floor(players[0].lifeCycle - (Date.now() - players[0].lastUpdated) / 1000);
+
+    if (players[0].scorecard.fieldsLeft =! 0) {
+        countDownValue = Math.floor(players[0].lifeCycle - (Date.now() - players[0].lastUpdated) / 1000);
+    }else {
+        countDownValue = Math.floor(players[0].lifeCycleFinish - (Date.now() - players[0].lastUpdated) / 1000);
+        players = await gameState();
+        drawScoreCardArea();
+    }
+
    element.innerHTML = `COUNT DOWN:  ${countDownValue} SECONDS`;
    if (countDownValue < 0){
         players[0].lastUpdated = Date.now();
         alert("Player session has expiered. Please login again!");
         window.location.href = "/welcome/";
    }
+
+    let allPlayersSelected = players.every(player => {
+        return Object.values(player.fieldsLeft).filter(status => status === 0);
+    });
+
+    if (allPlayersSelected) {
+        let winner = players.reduce((prev, current) => {
+            return (prev.scorecard.totalPoints > current.scorecard.totalPoints) ? prev : current;
+        });
+
+        alert("*** Game is finished ***\n" +
+              "All players have selected all fields.\n" +
+              "The winner is: " + winner.user.username + "\n" +
+              "With a total score of: " + (winner.scorecard.totalPoints ?? 0));
+        
+        window.location.href = "/welcome/";
+    }
 }
 
-setInterval(() => countDown(),1000);
+setInterval(() => updateLifeCycle(),1000);
 start();
