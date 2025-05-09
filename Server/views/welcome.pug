@@ -26,14 +26,13 @@ if playerCount < maxPlayers
         h1 
             |Welcome | Let's Play Yatzy! 
         hr(class="divider")
-    div 
+    div(class="submitArea")
         h2
             |Let us know who you are.
         input(type="text", placeholder="Enter your name" name="name" required)
-        button(type="submit", onclick="submitName()") 
+        button(type="button", onclick="submitName()") 
             |Submit
-    div 
-        h4 Currently connected: #{playerCount} of #{maxPlayers} players
+        h3 Currently connected: #{playerCount} of #{maxPlayers} players
 else
     div 
         h1 
