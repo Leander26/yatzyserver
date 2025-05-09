@@ -1,6 +1,4 @@
-export { getNewScoreCard, getDices,throwDices,getDiceFrequency, sameValuePoints, onePairPoints, 
-    twoPairPoints, threeOfAKindPoints, fourOfAKindPoints, fullHousePoints, smallStraightPoints, largeStraightPoints, chancePoints, yatzyPoints,
-getNewFieldStatus, calculateScoreCard };
+export { getNewScoreCard, getDices,throwDices, getNewFieldStatus, calculateScoreCard };
 
 // Dice class
 class Dice {
@@ -308,13 +306,11 @@ function updateFieldsLeft(scoreCard) {
     return scoreCard.fieldsLeft;
  }
  
-
-
  // Calulate fields on the scorecard. Values are only calculated if the field is not used.
  function calculateScoreCard(scoreCard, dices, fieldStatus) {
     // Check if the field is open or locked
     scoreCard.fieldsLeft = Object.values(fieldStatus).filter(status => status === "open").length;
-    
+
     // Calculate the score for each field
     for (const field in fieldStatus) {
         if (fieldStatus[field] === "open" || fieldStatus[field] === "locked") {
