@@ -11,6 +11,10 @@ body {
 
 button {
    font-family: nes-font;
+   margin-left: auto;
+   margin-right: auto;
+   width: 55%;
+   align-self: center;
 }
 
 button:hover {
@@ -36,28 +40,30 @@ p {
    border-bottom: 1px solid white;
 }
 
-h4 {
-   color: white;
-   text-align: center;
-}
-
 input {
    font-family: nes-font;
    width: 300px;
-   height: 28px;
-   text-align: right;
-   background-size: 64px 30px;
-   background-repeat: repeat;
-   background-image: url(/client/Media/inputSvg.svg);
+   height: 30px;
+   margin-right: auto;
+   margin-left: auto;
+   text-align: center;
+   background-size: 100% 100%;
+   background-repeat: no-repeat;
+   background-image: url(/client/Media/nameInput.svg);
    background-color: transparent;
+   background-position: center;
    border: none;
    align-self: center;
    font-size: large;
 }
 
 input:hover {
-   background-image: url(/client/Media/inputSvgDisabled.svg);
+   background-image: url(/client/Media/nameInputDisabled.svg);
    color: white;
+   /* set placeholder color to white */
+   &::placeholder {
+      color: white;
+   }
 }
 
 input:disabled {
@@ -80,6 +86,8 @@ input:disabled {
 }
 
 div {
+   /*border: 1px solid #ccc;
+   */
    padding: 10px;
    gap: 10px;
    display: grid;
@@ -90,7 +98,7 @@ div {
    grid-template-columns: auto auto auto auto auto;
    grid-template-rows: auto auto;
    margin-bottom: 10px;
-
+   
    /* Custom border */
    border: 30px solid;
    border-image-source: url(/client/Media/borderSvg.svg);
@@ -100,7 +108,7 @@ div {
 
 .points {
    grid-template-columns: 175px auto;
-
+   
    /* Custom border */
    border: 30px solid;
    border-image-source: url(/client/Media/borderSvg.svg);
@@ -117,8 +125,45 @@ div {
    margin: 20px 0;
 }
 
+.submitArea {
+   /*
+   -ms-transform: translateY(-50%);
+   transform: translateY(-50%);
+   */
+   /* Center items to the middle of the screen not the middle of the div */
+   position: absolute;
+   top: 50%;
+   left: 50%;
+   transform: translate(-50%, -50%);
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+}
+
 h1 {
    color: white;
-   font-size: 4em; /* eller større hvis ønsket */
+   font-size: 5em; /* eller større hvis ønsket */
    text-align: center;
+}
+
+h2 {
+   color: white;
+   font-size: 3em;
+   text-align: center;
+}
+
+h3 {
+   color: white;
+   font-size: 2em;
+   text-align: center;
+}
+
+h4 {
+   color: white;
+   text-align: center;
+}
+
+.disclaimer {
+   color:red;
+   padding-top: 5%;
 }
