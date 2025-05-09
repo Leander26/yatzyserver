@@ -209,7 +209,7 @@ async function updateLifeCycle(){
    if (countDownValue < 0){
         players[0].lastUpdated = Date.now();
         alert("Player session has expiered. Please login again!");
-        window.location.href = "/welcome/";
+        leaveGame();
    }
 
     let allPlayersSelected = players.every(player => {
@@ -226,7 +226,7 @@ async function updateLifeCycle(){
               "The winner is: " + winner.user.username + "\n" +
               "With a total score of: " + (winner.scorecard.totalPoints ?? 0));
         
-        window.location.href = "/welcome/";
+        leaveGame();
     }
 }
 
