@@ -162,3 +162,8 @@ h4 {
    color: white;
    text-align: center;
 }
+
+.disclaimer {
+   color:red;
+   padding-top: 5%;
+}
