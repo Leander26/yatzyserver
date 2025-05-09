@@ -13,7 +13,7 @@ button {
    font-family: nes-font;
    margin-left: auto;
    margin-right: auto;
-   width: 55%;
+   width: 45%;
    align-self: center;
 }
 
@@ -126,10 +126,6 @@ div {
 }
 
 .submitArea {
-   /*
-   -ms-transform: translateY(-50%);
-   transform: translateY(-50%);
-   */
    /* Center items to the middle of the screen not the middle of the div */
    position: absolute;
    top: 50%;

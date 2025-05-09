@@ -94,7 +94,7 @@ input:disabled {
 .btnLeaveGame {
    height: 100px;
    background: url(Media/leaveGameSvg.svg) center no-repeat;
-   background-size: 308px 100px;
+   background-size: 296.1538px 100px;
    border: none;
 }
 
@@ -138,6 +138,20 @@ div {
    background-color: rgba(255, 255, 255, 0.05);
    border: 1px solid #555;
    border-radius: 8px;
+}
+
+.opponent {
+   display: grid;
+   grid-template-columns: auto auto;
+   gap: 4px;
+   padding: 5px;
+   background-color: rgba(255, 255, 255, 0.05);
+   border: 1px solid #555;
+   border-radius: 8px;
+}
+
+.opponent input {
+   pointer-events: none; /* disable hover effect */
 }
 
 .player input {

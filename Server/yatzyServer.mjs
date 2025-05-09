@@ -1,7 +1,7 @@
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { join } from 'path';
-import express, { response, json } from 'express';
+import express, { json } from 'express';
 import sessions from 'express-session';
 import { getDices, getNewScoreCard, getNewFieldStatus, throwDices, calculateScoreCard } from './gameLogic.js'
 
@@ -175,7 +175,7 @@ app.post('/holddice/', (req, res) => {
         }
 
         // Check if the player has selected all fields
-        if (player.scorecard.fieldsLeft !=0 && player.throwCount < 3) {
+        if (player.scorecard.fieldsLeft !=0 && player.throwCount < 3 && player.throwCount > 0) {
             const { holdDices } = req.body;
     
             if (!holdDices || holdDices.length !== 5) {
@@ -213,27 +213,28 @@ app.post('/selectfield/', (req, res) => {
     }
 
     // Check if the player has selected all fields
-        if (player.scorecard.fieldsLeft !=0 && player.throwCount != 0) {
-            const { selectedField } = req.body;
-        
-            if (!selectedField || !(selectedField in player.fieldStatus)) {
-                return res.status(400).json({ error: "Invalid selectedField." });
-            }
-        
-            if (player.fieldStatus[selectedField] === "used") {
-                return res.status(400).json({ error: "Field already selected." });
-            }
-        
-            // Mark the field as used
-            player.fieldStatus[selectedField] = "used";
-        
-            // Update scorecard and prepare for next round
-            calculateScoreCard(player.scorecard, player.dices, player.fieldStatus);
-            player.dices = getDices();
-            player.dices.forEach(dice => dice.setOnHoldStatus(false));
-            player.throwCount = 0;
-            player.lastUpdated = Date.now();
+    if (player.scorecard.fieldsLeft !=0 && player.throwCount != 0) {
+        const { selectedField } = req.body;
+    
+        if (!selectedField || !(selectedField in player.fieldStatus)) {
+            return res.status(400).json({ error: "Invalid selectedField." });
         }
+    
+        if (player.fieldStatus[selectedField] === "used") {
+            return res.status(400).json({ error: "Field already selected." });
+        }
+    
+        // Mark the field as used
+        player.fieldStatus[selectedField] = "used";
+    
+        // Update scorecard and prepare for next round
+        calculateScoreCard(player.scorecard, player.dices, player.fieldStatus);
+        player.dices = getDices();
+        player.dices.forEach(dice => dice.setOnHoldStatus(false));
+        player.throwCount = 0;
+        player.lastUpdated = Date.now();
+    }
+
     respondWithSortedPlayers(req, res);
 });
 

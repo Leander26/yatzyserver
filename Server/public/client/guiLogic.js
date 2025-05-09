@@ -86,6 +86,28 @@ function drawDicesDiv() {
     addEventListeners();
 }
 
+function drawOpponentScoreCardArea(pointDiv) {
+    for (let j = 1; j < players.length; j++) {
+        let html = `<div class="opponent">`;
+        html += `<h4>${players[j].user.username}</h4>`;
+        html += `<h4>Points</h4>`;
+
+        for (let i = 0; i < fieldNames.length; i++) {
+            const fieldLabel = fieldNames[i];
+            const scorecardID = scorecardIDs[i];
+            const val = players[j].scorecard[scorecardID] ?? 0;
+            const used = players[j].fieldStatus[scorecardID] != "open";
+            const readOnlyAttr = used ? "disabled" : "readonly";
+
+            // html += `<div>${fieldLabel}</div>`;
+            html += `<p>${fieldLabel}</p><input type="text" id="${scorecardID}|${players[j].user.id}" value="${val}" ${readOnlyAttr}>`;
+        }
+
+        html += `</div>`;
+        pointDiv.innerHTML += html;
+    }
+}
+
 /**
  * Draws the scorecard area for each player.
  * It creates a div for each player and populates it with their scorecard information.
@@ -98,25 +120,27 @@ function drawScoreCardArea() {
     const pointDiv = document.querySelector('.points');
     pointDiv.innerHTML = "";
 
-    players.forEach(player => {
-        let html = `<div class="player">`;
-        html += `<h4>${player.user.username}</h4>`;
-        html += `<h4>Points</h4>`;
+    /* Add player to scorecard area */
+    let html = `<div class="player">`;
+    html += `<h4>${players[0].user.username}</h4>`;
+    html += `<h4>Points</h4>`;
 
-        for (let i = 0; i < fieldNames.length; i++) {
-            const fieldLabel = fieldNames[i];
-            const scorecardID = scorecardIDs[i];
-            const val = player.scorecard[scorecardID] ?? 0;
-            const used = player.fieldStatus[scorecardID] != "open";
-            const readOnlyAttr = used ? "disabled" : "readonly";
+    for (let i = 0; i < fieldNames.length; i++) {
+        const fieldLabel = fieldNames[i];
+        const scorecardID = scorecardIDs[i];
+        const val = players[0].scorecard[scorecardID] ?? 0;
+        const used = players[0].fieldStatus[scorecardID] != "open";
+        const readOnlyAttr = used ? "disabled" : "readonly";
 
-            // html += `<div>${fieldLabel}</div>`;
-            html += `<p>${fieldLabel}</p><input type="text" id="${scorecardID}|${player.user.id}" value="${val}" ${readOnlyAttr}>`;
-        }
+        // html += `<div>${fieldLabel}</div>`;
+        html += `<p>${fieldLabel}</p><input type="text" id="${scorecardID}|${players[0].user.id}" value="${val}" ${readOnlyAttr}>`;
+    }
 
-        html += `</div>`;
-        pointDiv.innerHTML += html;
-    });
+    html += `</div>`;
+    pointDiv.innerHTML += html;
+
+    /* Add opponents to scorecard area */
+    drawOpponentScoreCardArea(pointDiv);
 
     document.querySelectorAll('.player input').forEach(field => {
         field.addEventListener('click', async function () {
@@ -257,37 +281,45 @@ async function updateLifeCycle(){
     if (gameOn) {
         if (players[0].scorecard.fieldsLeft != 0) {
             countDownValue = Math.floor(players[0].lifeCycle - (Date.now() - players[0].lastUpdated) / 1000);
-         }else {
-             countDownValue = Math.floor(players[0].lifeCycleFinish - (Date.now() - players[0].lastUpdated) / 1000);
-             players = await gameState();
-             drawScoreCardArea();
-         }
+        }else {
+            countDownValue = Math.floor(players[0].lifeCycleFinish - (Date.now() - players[0].lastUpdated) / 1000);
+            players = await gameState();
+            drawScoreCardArea();
+        }
          
-         element.innerHTML = `COUNT DOWN:  ${countDownValue} SECONDS`;
-         if (countDownValue < 0){
-             players[0].lastUpdated = Date.now();
-             alert("Player session has expiered. Please login again!");
-             leaveGame();
-         }
+        element.innerHTML = `COUNT DOWN:  ${countDownValue} SECONDS`;
+        if (countDownValue < 0){
+            players[0].lastUpdated = Date.now();
+            alert("Player session has expiered. Please login again!");
+            leaveGame();
+        }
       
-         for (const p of players) {
-             if (p.scorecard.fieldsLeft != 0){
-                 allPlayersSelected = false;
-             }
-         }
+        for (const p of players) {
+            if (p.scorecard.fieldsLeft != 0){
+                allPlayersSelected = false;
+            }
+        }
 
-         if (allPlayersSelected) {
-             gameOn = false;
-             let winner = players.reduce((prev, current) => {
-                 return (prev.scorecard.totalPoints > current.scorecard.totalPoints) ? prev : current;
-             });
+        if (allPlayersSelected) {
+            gameOn = false;
+            let playersRanked = players.sort((a, b) => {
+                return (b.scorecard.totalPoints ?? 0) - (a.scorecard.totalPoints ?? 0);
+            });
+            let playerNames = playersRanked.map(player => player.user.username).join(", ");
+            let playerPoints = playersRanked.map(player => player.scorecard.totalPoints ?? 0).join(", ");
       
-             alert("*** Game is finished ***\n" +
-                   "All players have selected all fields.\n" +
-                   "The winner is: " + winner.user.username + "\n" +
-                   "With a total score of: " + (winner.scorecard.totalPoints ?? 0));
+            /* Create a string with the player names and their points and their ranking */
+            let playerRankings = playersRanked.map((player, index) => {
+                return `${index + 1}. ${player.user.username} - ${player.scorecard.totalPoints ?? 0}`;
+            }).join("\n");
+
+            alert("*** Game is finished ***\n" +
+                "All players are done.\n" +
+                "The rankings are:\n" +
+                playerRankings                
+            );
              
-             leaveGame();
+            leaveGame();
          }
     }
    
