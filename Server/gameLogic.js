@@ -1,4 +1,7 @@
-export { getNewScoreCard, getDices,throwDices, getNewFieldStatus, calculateScoreCard };
+export { getNewScoreCard, getDices,throwDices, getNewFieldStatus, calculateScoreCard,
+    getDiceFrequency, sameValuePoints, onePairPoints, twoPairPoints, threeOfAKindPoints,
+    fourOfAKindPoints, smallStraightPoints, largeStraightPoints, fullHousePoints, chancePoints, yatzyPoints
+ };
 
 // Dice class
 class Dice {
@@ -287,23 +290,11 @@ function yatzyPoints(dices) {
     return 0;
 }
 
-/** Moved from guiLogic */
-
 // Release dices
 function releaseDices(dices) {
     dices.forEach(dice => {
        dice.setOnHoldStatus(false);
     });
- }
-
- // Update fields left on the scorecard
-function updateFieldsLeft(scoreCard) {
-    scoreCard.fieldsLeft = scoreCard.fieldsLeft - 1;
- }
- 
- // Get fields left on the scorecard
- function getFieldsLeft(scoreCard) {
-    return scoreCard.fieldsLeft;
  }
  
  // Calulate fields on the scorecard. Values are only calculated if the field is not used.

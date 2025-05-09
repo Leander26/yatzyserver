@@ -146,10 +146,9 @@ app.post('/throwdice/', (req, res) => {
 
         // Check if the player has selected all fields
         if (player.scorecard.fieldsLeft !=0 && player.throwCount < 3) {
-            // Kaster kun de terninger, der ikke er på hold
             throwDices(player.dices, player);
     
-            // Beregner mulige points på åbne felter
+            // Recalculate scorecard
             calculateScoreCard(player.scorecard, player.dices, player.fieldStatus);
             player.lastUpdated = Date.now();
         }
@@ -185,14 +184,12 @@ app.post('/holddice/', (req, res) => {
                 return res.status(400).json({ error: "Invalid holdDices data." });
             }
     
-            // Opdater onHold status for hver terning
+            // Update the hold status of the dices
             for (let i = 0; i < player.dices.length; i++) {
                 player.dices[i].setOnHoldStatus(holdDices[i]);
             }
             player.lastUpdated = Date.now();
         }
-
-
         respondWithSortedPlayers(req, res);
     }
 });

@@ -1,18 +1,33 @@
 import { assert } from "chai";
 import { describe } from "mocha";
-import { getNewScoreCard, getDices, getThrowCount, resetThrowCount ,throwDices, getDiceFrequency, sameValuePoints, onePairPoints, twoPairPoints, threeOfAKindPoints,
+import { getNewScoreCard, getNewFieldStatus, getDices, throwDices, getDiceFrequency, sameValuePoints, onePairPoints, twoPairPoints, threeOfAKindPoints,
     fourOfAKindPoints, smallStraightPoints, largeStraightPoints, fullHousePoints, chancePoints, yatzyPoints
- } from "../gameLogic.js";
+ } from "../Server/gameLogic.js";
 
 let scoreCard = null;
 let throwCount = 0;
 let dices = [];
+let lifeCycleFinish = 600;
+class Player {
+    constructor(user) {
+        this.user = user;
+        this.dices = getDices();
+        this.scorecard = getNewScoreCard();
+        this.fieldStatus = getNewFieldStatus();
+        this.throwCount = 0;
+        this.lastUpdated = Date.now();
+        this.lifeCycle = lifeCycle;
+        this.lifeCycleFinish = lifeCycleFinish;
+    }
+}
+let player = null;
+let lifeCycle = 30;
 
 before(() => {
-    scoreCard = getNewScoreCard();
-    resetThrowCount();
-    throwCount = getThrowCount();
-    dices = getDices();
+    player = new Player("Player one");
+    scoreCard = player.scorecard;
+    throwCount = player.throwCount;
+    dices = player.dices;
 });
 
 describe("Check scoreCasrd logic", () => {
@@ -108,12 +123,12 @@ describe("Check dice logic", () => {
     });
 
     it("Get throw count", () => {
-        assert.equal(throwCount, 0);
+        assert.equal(player.throwCount, 0);
     });
 
     it("Throw dices", () => {
-        throwDices(dices);
-        assert.equal(getThrowCount(), 1);
+        throwDices(dices,player);
+        assert.equal(player.throwCount, 1);
     });
 
     it("Get dice frequency", () => {
@@ -125,16 +140,17 @@ describe("Check dice logic", () => {
         assert.equal(sum, 5);
     })
 
-    let olddiceFrequency = getDiceFrequency(dices);
-
-    for (const dice of dices) {
-        dice.hold = true;
-    }
-
-    throwDices(dices);
-    let newdiceFrequency = getDiceFrequency(dices);
-
+    
     it("Check dice frequency after holding all dices", () => {
+        let olddiceFrequency = getDiceFrequency(player.dices);
+    
+        for (const dice of player.dices) {
+            dice.setOnHoldStatus(true);
+        }
+    
+        throwDices(dices,player);
+        let newdiceFrequency = getDiceFrequency(player.dices);
+
         for (let i = 0; i < olddiceFrequency.length; i++) {
             assert.equal(olddiceFrequency[i], newdiceFrequency[i]);
         }
